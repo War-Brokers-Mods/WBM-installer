@@ -12,13 +12,13 @@
 
 <style lang="scss">
 	.home {
-		@apply flex flex-col justify-center items-center;
+		@apply flex flex-col justify-center items-center w-full h-full;
 
 		img {
-			@apply place-self-center m-2;
-
+			@apply place-self-center
+			m-2
 			/* prevent button position flickering */
-			min-height: 128px;
+			min-h-[128px];
 		}
 	}
 </style>
