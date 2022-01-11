@@ -34,29 +34,13 @@ No worries though, this is only for the first execution and it will be much quic
 
 ### 2. Run in development mode
 
-Start the application in development environment with testing tools.
+Start the application in development environment with testing tools and hot reloading.
 
 ```bash
 yarn tauri dev
 ```
 
-Test front end in development mode with hot reloading (in browser)
-
-```bash
-yarn dev
-```
-
-Build front end in production mode (in browser)
-
-```bash
-yarn build
-```
-
-start front end in production mode (in browser)
-
-```bash
-yarn start
-```
+This command should be used for testing since the app may render differently in your browser.
 
 ### 3. Build for production
 
