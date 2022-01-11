@@ -1,0 +1,12 @@
+{
+	"cSpell.words": ["developomp", "tailwindcss", "tauri"],
+
+	"emmet.includeLanguages": {
+		"postcss": "css"
+	},
+
+	// prevents unknown at-rule error
+	// https://github.com/tailwindlabs/tailwindcss-intellisense#recommended-vs-code-settings
+	"css.validate": false,
+	"scss.validate": false
+}

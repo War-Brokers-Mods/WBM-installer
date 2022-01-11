@@ -1,0 +1,22 @@
+[package]
+name = "wbm-installer"
+version = "1.0.0"
+description = "WBM Installer"
+authors = ["developomp"]
+license = "MIT"
+repository = "https://github.com/War-Brokers-Mods/WBM-installer"
+default-run = "wbm-installer"
+edition = "2021"
+build = "src/build.rs"
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.0.0-beta.8", features = ["api-all"] }
+
+[build-dependencies]
+tauri-build = { version = "1.0.0-beta.4" }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

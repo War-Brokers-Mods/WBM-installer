@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#app {
+	@apply bg-neutral-800 text-neutral-300;
+
+	/* approximately golden ratio */
+
+	width: 500px;
+	height: 300px;
+}
