@@ -21,7 +21,7 @@
 
 <style lang="scss">
 	.main-buttons-container {
-		@apply grid gap-6 grid-cols-3 mb-3;
+		@apply grid gap-6 grid-cols-3;
 
 		button {
 			@apply p-4 w-24 h-24 rounded-xl bg-red-500 text-white font-normal;

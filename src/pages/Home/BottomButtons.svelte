@@ -5,17 +5,19 @@
 </script>
 
 <div class="small-button-container">
-	<button><FaBook /></button>
-	<button><FaGithub /></button>
-	<button><FaDiscord /></button>
+	<a href="https://github.com/War-Brokers-Mods/WBM#usage" target="_blank"
+		><FaBook /></a
+	>
+	<a href="https://github.com/War-Brokers-Mods" target="_blank"><FaGithub /></a>
+	<a href="https://discord.gg/aQqamSCUcS" target="_blank"><FaDiscord /></a>
 </div>
 
 <style lang="scss">
 	.small-button-container {
-		@apply grid gap-3 grid-cols-3 mt-5;
+		@apply grid gap-4 grid-cols-3 mt-6;
 
-		button {
-			@apply w-6 h-6;
+		a {
+			@apply w-6;
 
 			&:hover {
 				@apply text-gray-200;
