@@ -40,7 +40,9 @@ Start the application in development environment with testing tools and hot relo
 yarn tauri dev
 ```
 
-This command should be used for testing since the app may render differently in your browser.
+- This command should be used for testing since the app may render differently in your browser.
+- You might get a `Port 8080 is taken` warning because the previous dev server isn't properly closed.
+  Exiting and reopening the terminal should fix the issue.
 
 ### 3. Build for production
 
