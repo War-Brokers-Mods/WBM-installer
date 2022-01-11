@@ -21,18 +21,13 @@
 
 <style lang="scss">
 	.main-buttons-container {
-		@apply grid gap-6 grid-cols-3;
+		@apply grid gap-6 grid-cols-3 mb-3;
 
 		button {
-			@apply p-4 aspect-square rounded bg-red-500 text-white;
+			@apply p-4 w-24 h-24 rounded-xl bg-red-500 text-white font-normal;
 
 			.icon {
-				@apply flex justify-center w-full mb-4;
-
-				$icon-size: 24px;
-
-				width: $icon-size;
-				height: $icon-size;
+				@apply w-full h-6 mb-2;
 			}
 
 			&:hover {

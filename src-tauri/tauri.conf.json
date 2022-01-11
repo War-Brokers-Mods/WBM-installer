@@ -54,8 +54,8 @@
 		"windows": [
 			{
 				"title": "WBM Installer",
-				"width": 800,
-				"height": 500,
+				"width": 500,
+				"height": 300,
 				"resizable": false,
 				"fullscreen": false
 			}
