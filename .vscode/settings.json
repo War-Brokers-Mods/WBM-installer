@@ -1,5 +1,5 @@
 {
-	"cSpell.words": ["developomp", "tailwindcss", "tauri"],
+	"cSpell.words": ["developomp", "reqwest", "tailwindcss", "tauri"],
 
 	"emmet.includeLanguages": {
 		"postcss": "css"

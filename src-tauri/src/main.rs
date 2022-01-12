@@ -4,6 +4,7 @@
 )]
 
 mod commands;
+mod util;
 
 fn main() {
     tauri::Builder::default()
