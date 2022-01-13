@@ -1,7 +1,5 @@
 // [Sync]: must be synced with `src/pages/Status/index.svelte`
 
-use std::fs;
-
 use crate::util;
 
 /// [Sync]
@@ -22,7 +20,11 @@ pub async fn status(req_type: String) -> StatusData {
     if req_type == LATEST_VERSION {
         status_data.latest_release_version = get_latest_release().await;
     } else if req_type == GAME_PATH {
-        status_data.game_path = get_game_path()
+        // returns an empty string if the game doesn't exist in the default path
+        match util::get_default_game_path() {
+            Ok(path) => status_data.game_path = path,
+            Err(_) => {}
+        }
     }
 
     return status_data;
@@ -44,22 +46,4 @@ async fn get_latest_release() -> String {
         .unwrap();
 
     return res;
-}
-
-/// gets path to WB game files. Return empty string if path was not found.
-fn get_game_path() -> String {
-    let game_path = match std::env::consts::OS {
-        "linux" => "~/.steam/steam/SteamApps/common",
-        "macos" => "~/Library/Application Support/Steam/steamapps/common",
-        "windows" => "C:\\Program Files\\Steam\\steamapps\\common",
-
-        _ => panic!("Unsupported platform!"),
-    };
-
-    // https://stackoverflow.com/a/32384768/12979111
-    return String::from(if fs::metadata(game_path).is_ok() {
-        game_path
-    } else {
-        ""
-    });
 }
