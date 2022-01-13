@@ -1,8 +1,23 @@
 <script lang="ts">
-	import { invoke } from "@tauri-apps/api/tauri"
-	import { open } from "@tauri-apps/api/shell"
-	import { ROUTES, COMMANDS, STATUS_REQUEST } from "../../constants"
+	// [Sync]: must be synced with `src-tauri/src/commands/status.rs`
 
+	import { invoke } from "@tauri-apps/api/tauri"
+	import { open as openShell } from "@tauri-apps/api/shell"
+	import { ROUTES, COMMANDS } from "../../constants"
+
+	// [Sync]
+	enum STATUS_REQUEST {
+		LATEST_VERSION = "LATEST_VERSION",
+		GAME_PATH = "GAME_PATH",
+	}
+
+	// [Sync]
+	interface StatusDataRaw {
+		latest_release_version?: string
+		game_path?: string
+	}
+
+	// [Sync]
 	interface StatusData {
 		latestReleaseVersion?: LatestReleaseVersion
 		gamePath?: string
@@ -15,26 +30,41 @@
 
 	let statusData: StatusData = {}
 
+	function _requestStatus(
+		reqType: STATUS_REQUEST,
+		f: (res: StatusDataRaw) => void,
+		f2?: (res: any) => void
+	) {
+		// fallback to default error handling if f2 is not defined
+		f2 ||= (err) => {
+			console.error(err)
+		}
+
+		invoke(COMMANDS.STATUS, { reqType }).then(f).catch(f2)
+	}
+
 	async function status() {
-		invoke(COMMANDS.STATUS, {
-			reqType: STATUS_REQUEST.LATEST_VERSION,
+		_requestStatus(STATUS_REQUEST.LATEST_VERSION, (res) => {
+			const data = (JSON.parse(res.latest_release_version) as any[])[0]
+			statusData.latestReleaseVersion = {
+				name: data.name,
+				url: data.html_url,
+			}
 		})
-			.then((res: any) => {
-				const data = (JSON.parse(res.latest_release_version) as any[])[0]
-				statusData.latestReleaseVersion = {
-					name: data.name,
-					url: data.html_url,
-				}
-			})
-			.catch((err) => {
-				console.error(err)
-			})
+
+		_requestStatus(STATUS_REQUEST.GAME_PATH, (res) => {
+			statusData.gamePath = res.game_path || "steam apps folder not found"
+		})
 	}
 </script>
 
 <a href={ROUTES.HOME}>Home</a>
+
 <br />
+
 <button on:click={status}>Check status!</button>
+
+<br />
 <br />
 
 Latest version:
@@ -42,10 +72,17 @@ Latest version:
 	<div
 		on:click={() => {
 			console.log(statusData.latestReleaseVersion.url)
-			open(statusData.latestReleaseVersion.url)
+			openShell(statusData.latestReleaseVersion.url)
 		}}
 		style="display: inline-block; cursor: pointer"
 	>
 		{statusData.latestReleaseVersion.name}
 	</div>
+{/if}
+
+<br />
+
+game Path:
+{#if statusData.gamePath}
+	{statusData.gamePath}
 {/if}
