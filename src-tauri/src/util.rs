@@ -13,7 +13,7 @@ pub fn get_default_game_path() -> Result<String, String> {
     let game_path = match std::env::consts::OS {
         "linux" => "~/.steam/steam/steamapps/common/WarBrokers",
         "macos" => "~/Library/Application Support/Steam/steamapps/common/WarBrokers",
-        "windows" => "C:\\Program Files\\Steam\\steamapps\\common\\WarBrokers",
+        "windows" => "C:\\Program Files (x86)\\Steam\\steamapps\\common\\WarBrokers",
 
         _ => panic!("Unsupported platform!"),
     };
@@ -43,3 +43,5 @@ pub async fn get_latest_release() -> String {
 
     return res;
 }
+
+pub fn download_release_zip() {}
