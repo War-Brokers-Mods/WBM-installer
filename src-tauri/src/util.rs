@@ -25,3 +25,21 @@ pub fn get_default_game_path() -> Result<String, String> {
         Err(String::from("Failed to default game path"))
     };
 }
+
+/// get the latest WBM release version.
+/// data is not converted to a json object because it'll be done in the front-end
+pub async fn get_latest_release() -> String {
+    let client = build_client();
+
+    // todo: handle error
+    let res = client
+        .get("https://api.github.com/repos/War-Brokers-Mods/WBM/releases")
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+
+    return res;
+}
