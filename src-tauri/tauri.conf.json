@@ -32,7 +32,14 @@
 		"updater": {
 			"active": false
 		},
-		"allowlist": {},
+		"allowlist": {
+			"shell": {
+				"open": true
+			},
+			"dialog": {
+				"open": true
+			}
+		},
 		"windows": [
 			{
 				"title": "WBM Installer",
