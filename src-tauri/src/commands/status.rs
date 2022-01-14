@@ -22,8 +22,9 @@ pub async fn status(req_type: String) -> StatusData {
     } else if req_type == GAME_PATH {
         // returns an empty string if the game doesn't exist in the default path
         match util::get_default_game_path() {
-            Ok(path) => status_data.game_path = path,
-            Err(_) => {}
+            Some(path) => status_data.game_path = path,
+            // todo: send feedback to frontend
+            None => {}
         }
     }
 

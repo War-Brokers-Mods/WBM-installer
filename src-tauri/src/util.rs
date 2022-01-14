@@ -1,4 +1,11 @@
+use futures_util::StreamExt;
+use std::cmp::min;
 use std::fs;
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
+
+use tauri::api::path::home_dir;
 
 /// build client with header
 pub fn build_client() -> reqwest::Client {
@@ -9,21 +16,37 @@ pub fn build_client() -> reqwest::Client {
 }
 
 /// gets path to WB game files.
-pub fn get_default_game_path() -> Result<String, String> {
+pub fn get_default_game_path() -> Option<String> {
+    let home = buf2str(home_dir());
+    if home.is_none() {
+        return None;
+    }
+    let home = home.unwrap();
+
     let game_path = match std::env::consts::OS {
-        "linux" => "~/.steam/steam/steamapps/common/WarBrokers",
-        "macos" => "~/Library/Application Support/Steam/steamapps/common/WarBrokers",
-        "windows" => "C:\\Program Files (x86)\\Steam\\steamapps\\common\\WarBrokers",
+        "linux" => format!("{}/.steam/steam/steamapps/common/WarBrokers", home),
+        "macos" => format!(
+            "{}/Library/Application Support/Steam/steamapps/common/WarBrokers",
+            home
+        ),
+        "windows" => String::from("C:\\Program Files (x86)\\Steam\\steamapps\\common\\WarBrokers"),
 
-        _ => panic!("Unsupported platform!"),
+        _ => return None,
     };
 
-    // https://stackoverflow.com/a/32384768/12979111
-    return if fs::metadata(game_path).is_ok() {
-        Ok(String::from(game_path))
-    } else {
-        Err(String::from("Failed to default game path"))
-    };
+    if fs::metadata(game_path.as_str()).is_ok() {
+        return Some(String::from(game_path));
+    }
+
+    return None;
+}
+
+pub fn buf2str(input: Option<PathBuf>) -> Option<String> {
+    if input.is_none() {
+        return None;
+    }
+
+    return Some(String::from(input.unwrap().to_str().unwrap()));
 }
 
 /// get the latest WBM release version.
@@ -44,4 +67,37 @@ pub async fn get_latest_release() -> String {
     return res;
 }
 
-pub fn download_release_zip() {}
+/// download a specific release version
+pub async fn download_release_zip(url: &str, path: &str) -> Result<(), String> {
+    let client = build_client();
+
+    let res = client
+        .get(url)
+        .send()
+        .await
+        .or(Err(format!("Failed to GET from '{}'", &url)))?;
+
+    let total_size = res
+        .content_length()
+        .ok_or(format!("Failed to get content length from '{}'", &url))?;
+
+    // download chunks
+
+    let mut file = File::create(path).or(Err(format!("Failed to create file '{}'", path)))?;
+    let mut stream = res.bytes_stream();
+
+    let mut downloaded: u64 = 0;
+
+    while let Some(item) = stream.next().await {
+        let chunk = item.or(Err(format!("Error while downloading file")))?;
+
+        file.write(&chunk)
+            .or(Err(format!("Error while writing to file")))?;
+
+        let new = min(downloaded + (chunk.len() as u64), total_size);
+
+        downloaded = new;
+    }
+
+    return Ok(());
+}
