@@ -1,9 +1,10 @@
 <script lang="ts">
 	// [Sync]: must be synced with `src-tauri/src/commands/status.rs`
+	import HomeButton from "../../components/HomeButton.svelte"
 
 	import { invoke } from "@tauri-apps/api/tauri"
 	import { open as openShell } from "@tauri-apps/api/shell"
-	import { ROUTES, COMMANDS } from "../../constants"
+	import { COMMANDS } from "../../constants"
 
 	// [Sync]
 	enum STATUS_REQUEST {
@@ -58,7 +59,7 @@
 	}
 </script>
 
-<a href={ROUTES.HOME}>Home</a>
+<HomeButton />
 
 <br />
 
