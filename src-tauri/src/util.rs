@@ -1,11 +1,14 @@
+use tauri::api::path::{cache_dir, home_dir};
+use tauri::Window;
+
+use serde::Serialize;
+
 use futures_util::StreamExt;
 use std::cmp::min;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-
-use tauri::api::path::{cache_dir, home_dir};
 
 /// build client with header
 pub fn build_client() -> reqwest::Client {
@@ -114,4 +117,9 @@ pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<Str
     }
 
     return Ok(path);
+}
+
+/// https://tauri.studio/docs/guides/events
+pub fn emit<S: Serialize>(window: &Window, event: &str, payload: S) {
+    window.emit(event, payload).unwrap();
 }

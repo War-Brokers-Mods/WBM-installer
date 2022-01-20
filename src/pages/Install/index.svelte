@@ -3,9 +3,28 @@
 	import Spinner from "../../components/Spinner.svelte"
 
 	import { invoke } from "@tauri-apps/api/tauri"
-	import { COMMANDS } from "../../constants"
+	import { listen } from "@tauri-apps/api/event"
+
+	import { COMMANDS, EVENTS } from "../../constants"
+
+	enum InstallSteps {
+		DownloadBepInEx = 0,
+		DownloadWbmZip,
+	}
+
+	interface InstallEventPayload {
+		complete: InstallSteps
+	}
+
+	//
+	//
+	//
 
 	let isRunning = false
+
+	listen<InstallEventPayload>(EVENTS.INSTALL, (event) => {
+		console.log(event.payload.complete)
+	})
 
 	function install() {
 		isRunning = true

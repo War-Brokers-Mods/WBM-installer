@@ -1,12 +1,27 @@
+use tauri::Window;
+
+use crate::constants;
 use crate::util;
 
 use std::env;
+
+// must be synced with `src/pages/Install/index.svelte`
+#[derive(Clone, serde::Serialize)]
+enum InstallSteps {
+    DownloadBepInEx,
+    DownloadWbmZip,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct InstallPayload {
+    complete: InstallSteps,
+}
 
 // todo: show current step in the frontend
 
 /// automated version of https://github.com/War-Brokers-Mods/WBM#installation
 #[tauri::command]
-pub async fn install() {
+pub async fn install(window: Window) {
     println!("Installing WBM");
 
     // todo: download things in parallel when possible
@@ -23,11 +38,11 @@ pub async fn install() {
 
     // start installation
 
-    install_bepinex(game_path).await;
-    download_wbm_zip(game_path).await;
+    install_bepinex(&window, game_path).await;
+    download_wbm_zip(&window, game_path).await;
 }
 
-async fn install_bepinex(game_path: &str) {
+async fn install_bepinex(window: &Window, game_path: &str) {
     println!("Installing BepInEx");
 
     // determine which BepInEx file to download
@@ -65,9 +80,19 @@ async fn install_bepinex(game_path: &str) {
     // unzip file
 
     println!("{}", game_path);
+
+    // done
+
+    util::emit(
+        &window,
+        constants::EVENT_INSTALL,
+        InstallPayload {
+            complete: InstallSteps::DownloadBepInEx,
+        },
+    )
 }
 
-async fn download_wbm_zip(game_path: &str) {
+async fn download_wbm_zip(window: &Window, game_path: &str) {
     // todo: get url of latest zip
 
     let latest_release = &json::parse(util::get_wbm_release_data().await.as_str()).unwrap()[0]
@@ -90,4 +115,14 @@ async fn download_wbm_zip(game_path: &str) {
     // unzip file
 
     println!("{}", game_path);
+
+    // done
+
+    util::emit(
+        &window,
+        constants::EVENT_INSTALL,
+        InstallPayload {
+            complete: InstallSteps::DownloadWbmZip,
+        },
+    )
 }

@@ -5,8 +5,15 @@ export enum ROUTES {
 	UPDATE = "#/update",
 }
 
-// https://tauri.studio/en/docs/usage/guides/command
+// https://tauri.studio/docs/guides/command
 export enum COMMANDS {
+	STATUS = "status",
+	INSTALL = "install",
+	UPDATE = "update",
+}
+
+// https://tauri.studio/docs/guides/events
+export enum EVENTS {
 	STATUS = "status",
 	INSTALL = "install",
 	UPDATE = "update",
