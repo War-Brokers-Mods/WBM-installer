@@ -18,7 +18,7 @@ pub async fn status(req_type: String) -> StatusData {
     let mut status_data = StatusData::default();
 
     if req_type == LATEST_VERSION {
-        status_data.latest_release_version = util::get_latest_release().await;
+        status_data.latest_release_version = util::get_wbm_release_data().await;
     } else if req_type == GAME_PATH {
         // returns an empty string if the game doesn't exist in the default path
         match util::get_default_game_path() {

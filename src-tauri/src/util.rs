@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use tauri::api::path::home_dir;
+use tauri::api::path::{cache_dir, home_dir};
 
 /// build client with header
 pub fn build_client() -> reqwest::Client {
@@ -51,7 +51,7 @@ pub fn buf2str(input: Option<PathBuf>) -> Option<String> {
 
 /// get the latest WBM release version.
 /// data is not converted to a json object because it'll be done in the front-end
-pub async fn get_latest_release() -> String {
+pub async fn get_wbm_release_data() -> String {
     let client = build_client();
 
     // todo: handle error
@@ -67,8 +67,21 @@ pub async fn get_latest_release() -> String {
     return res;
 }
 
-/// download a specific release version
-pub async fn download_release_zip(url: &str, path: &str) -> Result<(), String> {
+/// downloads a file from the url to the cache directory.
+pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<String, String> {
+    // parse path
+
+    let cache_dir_raw = buf2str(cache_dir());
+    if cache_dir_raw.is_none() {
+        // todo: handle error here
+        panic!("Failed to get cache directory.");
+    }
+
+    let path = format!("{}/{}", cache_dir_raw.unwrap(), file_name);
+    let path_str = path.as_str();
+
+    // initialize reqwest client
+
     let client = build_client();
 
     let res = client
@@ -83,7 +96,8 @@ pub async fn download_release_zip(url: &str, path: &str) -> Result<(), String> {
 
     // download chunks
 
-    let mut file = File::create(path).or(Err(format!("Failed to create file '{}'", path)))?;
+    let mut file =
+        File::create(path_str).or(Err(format!("Failed to create file '{}'", path_str)))?;
     let mut stream = res.bytes_stream();
 
     let mut downloaded: u64 = 0;
@@ -99,5 +113,5 @@ pub async fn download_release_zip(url: &str, path: &str) -> Result<(), String> {
         downloaded = new;
     }
 
-    return Ok(());
+    return Ok(path);
 }

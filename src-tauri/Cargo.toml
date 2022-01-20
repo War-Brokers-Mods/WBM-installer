@@ -10,11 +10,16 @@ edition = "2021"
 build = "src/build.rs"
 
 [dependencies]
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.0.0-beta.8", features = ["dialog-open", "path-all", "shell-open"] }
-reqwest = { version = "0.11", features = ["blocking", "json", "stream"] }
-futures-util = "0.3"
+serde_json = "1.0.75"
+serde = { version = "1.0.133", features = ["derive"] }
+tauri = { version = "1.0.0-beta.8", features = [
+    "dialog-open",
+    "path-all",
+    "shell-open",
+] }
+reqwest = { version = "0.11.9", features = ["blocking", "json", "stream"] }
+futures-util = "0.3.19"
+json = "0.12.4"
 
 [build-dependencies]
 tauri-build = { version = "1.0.0-beta.4" }
