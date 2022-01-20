@@ -7,43 +7,85 @@
 
 	import { COMMANDS, EVENTS } from "../../constants"
 
-	enum InstallSteps {
-		DownloadBepInEx = 0,
+	enum Steps {
+		DownloadBepInEx,
 		DownloadWbmZip,
-	}
-
-	interface InstallEventPayload {
-		complete: InstallSteps
+		Done,
 	}
 
 	//
 	//
 	//
 
-	let isRunning = false
+	let showButtons = false
+	let spinCog = false
+	let stepsStatus = {
+		DownloadBepInEx: false,
+		DownloadWbmZip: false,
+		Done: false,
+	}
 
-	listen<InstallEventPayload>(EVENTS.INSTALL, (event) => {
-		console.log(event.payload.complete)
+	listen<Steps>(EVENTS.INSTALL, (event) => {
+		switch (event.payload) {
+			case Steps.DownloadBepInEx: {
+				stepsStatus.DownloadBepInEx = true
+				break
+			}
+
+			case Steps.DownloadWbmZip: {
+				stepsStatus.DownloadWbmZip = true
+				break
+			}
+
+			case Steps.Done: {
+				spinCog = false
+				stepsStatus.Done = true
+				break
+			}
+		}
 	})
 
 	function install() {
-		isRunning = true
+		showButtons = true
+		spinCog = true
 		invoke(COMMANDS.INSTALL)
 	}
 </script>
 
-{#if !isRunning}
+{#if !showButtons}
 	<HomeButton />
 {/if}
 
 <div class="install-page">
-	<Spinner activated={isRunning} />
+	<Spinner activated={spinCog} />
 
-	<button on:click={install}>Install!</button>
+	{#if !showButtons}
+		<button on:click={install}>Install!</button>
+	{/if}
+
+	{#if stepsStatus.DownloadBepInEx}
+		Download BepInEx!
+	{/if}
+	<br />
+	{#if stepsStatus.DownloadWbmZip}
+		Download WBM!
+	{/if}
+	<br />
+	{#if stepsStatus.Done}
+		Done!
+	{/if}
 </div>
 
 <style lang="scss">
 	.install-page {
 		@apply flex flex-col items-center;
+	}
+
+	button {
+		/* text */
+		@apply text-white font-sans font-semibold tracking-wide text-xl;
+
+		/* style */
+		@apply pt-2 pb-2 pl-3 pr-3 rounded bg-red-600;
 	}
 </style>

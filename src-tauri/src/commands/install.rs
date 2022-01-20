@@ -6,16 +6,15 @@ use crate::util;
 use std::env;
 
 // must be synced with `src/pages/Install/index.svelte`
-#[derive(Clone, serde::Serialize)]
+#[derive(Clone)]
 enum InstallSteps {
     DownloadBepInEx,
     DownloadWbmZip,
+    Done,
 }
 
 #[derive(Clone, serde::Serialize)]
-struct InstallPayload {
-    complete: InstallSteps,
-}
+struct InstallPayload(i64);
 
 // todo: show current step in the frontend
 
@@ -40,6 +39,9 @@ pub async fn install(window: Window) {
 
     install_bepinex(&window, game_path).await;
     download_wbm_zip(&window, game_path).await;
+
+    util::emit(&window, constants::EVENT_INSTALL, InstallSteps::Done as i64);
+    println!("Install complete!");
 }
 
 async fn install_bepinex(window: &Window, game_path: &str) {
@@ -49,7 +51,7 @@ async fn install_bepinex(window: &Window, game_path: &str) {
 
     // download URL is updated manually
     let bepinex_zip_url = match env::consts::OS {
-        "linux" | "maxos" => {
+        "linux" | "macos" => {
             "https://github.com/BepInEx/BepInEx/releases/download/v5.4.18/BepInEx_unix_5.4.18.0.zip"
         }
 
@@ -86,10 +88,8 @@ async fn install_bepinex(window: &Window, game_path: &str) {
     util::emit(
         &window,
         constants::EVENT_INSTALL,
-        InstallPayload {
-            complete: InstallSteps::DownloadBepInEx,
-        },
-    )
+        InstallSteps::DownloadBepInEx as i64,
+    );
 }
 
 async fn download_wbm_zip(window: &Window, game_path: &str) {
@@ -121,8 +121,6 @@ async fn download_wbm_zip(window: &Window, game_path: &str) {
     util::emit(
         &window,
         constants::EVENT_INSTALL,
-        InstallPayload {
-            complete: InstallSteps::DownloadWbmZip,
-        },
-    )
+        InstallSteps::DownloadWbmZip as i64,
+    );
 }
