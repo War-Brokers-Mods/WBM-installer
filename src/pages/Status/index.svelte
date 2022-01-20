@@ -31,7 +31,7 @@
 	}
 
 	let statusData: StatusData = {}
-	let activateSpinner = false
+	let isRunning = false
 
 	function _requestStatus(
 		reqType: STATUS_REQUEST,
@@ -47,7 +47,7 @@
 	}
 
 	async function status() {
-		activateSpinner = true
+		isRunning = true
 		_requestStatus(STATUS_REQUEST.LATEST_VERSION, (res) => {
 			const data = (JSON.parse(res.latest_release_version) as any[])[0]
 			statusData.latestReleaseVersion = {
@@ -62,10 +62,12 @@
 	}
 </script>
 
-<HomeButton />
+{#if !isRunning}
+	<HomeButton />
+{/if}
 
 <div class="status-page">
-	<Spinner activated={activateSpinner} />
+	<Spinner activated={isRunning} />
 
 	<div>
 		<button on:click={status}>Check status!</button>

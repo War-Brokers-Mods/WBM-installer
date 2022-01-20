@@ -5,18 +5,20 @@
 	import { invoke } from "@tauri-apps/api/tauri"
 	import { COMMANDS } from "../../constants"
 
-	let activateSpinner = false
+	let isRunning = false
 
 	function update() {
-		activateSpinner = true
+		isRunning = true
 		invoke(COMMANDS.UPDATE)
 	}
 </script>
 
-<HomeButton />
+{#if !isRunning}
+	<HomeButton />
+{/if}
 
 <div class="update-page">
-	<Spinner activated={activateSpinner} />
+	<Spinner activated={isRunning} />
 	<button on:click={update}>Update!</button>
 </div>
 

@@ -5,18 +5,20 @@
 	import { invoke } from "@tauri-apps/api/tauri"
 	import { COMMANDS } from "../../constants"
 
-	let activateSpinner = false
+	let isRunning = false
 
 	function install() {
-		activateSpinner = true
+		isRunning = true
 		invoke(COMMANDS.INSTALL)
 	}
 </script>
 
-<HomeButton />
+{#if !isRunning}
+	<HomeButton />
+{/if}
 
 <div class="install-page">
-	<Spinner activated={activateSpinner} />
+	<Spinner activated={isRunning} />
 
 	<button on:click={install}>Install!</button>
 </div>
