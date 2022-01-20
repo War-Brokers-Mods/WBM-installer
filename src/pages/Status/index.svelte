@@ -1,6 +1,7 @@
 <script lang="ts">
 	// [Sync]: must be synced with `src-tauri/src/commands/status.rs`
 	import HomeButton from "../../components/HomeButton.svelte"
+	import Spinner from "../../components/Spinner.svelte"
 
 	import { invoke } from "@tauri-apps/api/tauri"
 	import { open as openShell } from "@tauri-apps/api/shell"
@@ -30,6 +31,7 @@
 	}
 
 	let statusData: StatusData = {}
+	let activateSpinner = false
 
 	function _requestStatus(
 		reqType: STATUS_REQUEST,
@@ -45,6 +47,7 @@
 	}
 
 	async function status() {
+		activateSpinner = true
 		_requestStatus(STATUS_REQUEST.LATEST_VERSION, (res) => {
 			const data = (JSON.parse(res.latest_release_version) as any[])[0]
 			statusData.latestReleaseVersion = {
@@ -61,29 +64,39 @@
 
 <HomeButton />
 
-<br />
+<div class="status-page">
+	<Spinner activated={activateSpinner} />
 
-<button on:click={status}>Check status!</button>
+	<div>
+		<button on:click={status}>Check status!</button>
 
-<br />
-<br />
+		<br />
+		<br />
 
-Latest version:
-{#if statusData.latestReleaseVersion}
-	<div
-		on:click={() => {
-			console.log(statusData.latestReleaseVersion.url)
-			openShell(statusData.latestReleaseVersion.url)
-		}}
-		style="display: inline-block; cursor: pointer"
-	>
-		{statusData.latestReleaseVersion.name}
+		Latest version:
+		{#if statusData.latestReleaseVersion}
+			<div
+				on:click={() => {
+					console.log(statusData.latestReleaseVersion.url)
+					openShell(statusData.latestReleaseVersion.url)
+				}}
+				style="display: inline-block; cursor: pointer"
+			>
+				{statusData.latestReleaseVersion.name}
+			</div>
+		{/if}
+
+		<br />
+
+		game Path:
+		{#if statusData.gamePath}
+			{statusData.gamePath}
+		{/if}
 	</div>
-{/if}
+</div>
 
-<br />
-
-game Path:
-{#if statusData.gamePath}
-	{statusData.gamePath}
-{/if}
+<style lang="scss">
+	.status-page {
+		@apply flex flex-col items-center;
+	}
+</style>
