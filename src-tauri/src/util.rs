@@ -1,8 +1,6 @@
 use tauri::api::path::{cache_dir, home_dir};
 use tauri::Window;
 
-use serde::Serialize;
-
 use futures_util::StreamExt;
 use std::cmp::min;
 use std::fs;
@@ -121,7 +119,7 @@ pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<Str
 }
 
 /// https://tauri.studio/docs/guides/events
-pub fn emit<S: Serialize>(window: &Window, event: &str, payload: S) {
+pub fn emit<S: serde::Serialize>(window: &Window, event: &str, payload: S) {
     window.emit(event, payload).unwrap();
 }
 

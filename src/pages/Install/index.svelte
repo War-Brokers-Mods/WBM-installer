@@ -9,9 +9,13 @@
 
 	import { COMMANDS, EVENTS } from "../../constants"
 
-	enum Steps {
+	enum InstallSteps {
 		DownloadBepInEx,
+		InstallBepInEx,
+		UnixLaunchOption,
+		LaunchGame,
 		DownloadWbmZip,
+		InstallWbm,
 		Done,
 	}
 
@@ -21,31 +25,36 @@
 	}
 
 	//
-	//
+	// variables
 	//
 
 	let isInstallButtonClicked = false
 	let wasDefaultGamePathFound = true
 	let spinCog = false
+
 	let stepsStatus = {
 		DownloadBepInEx: false,
 		DownloadWbmZip: false,
 		Done: false,
 	}
 
-	listen<Steps>(EVENTS.INSTALL, (event) => {
+	//
+	// functions
+	//
+
+	listen<InstallSteps>(EVENTS.INSTALL, (event) => {
 		switch (event.payload) {
-			case Steps.DownloadBepInEx: {
+			case InstallSteps.DownloadBepInEx: {
 				stepsStatus.DownloadBepInEx = true
 				break
 			}
 
-			case Steps.DownloadWbmZip: {
+			case InstallSteps.DownloadWbmZip: {
 				stepsStatus.DownloadWbmZip = true
 				break
 			}
 
-			case Steps.Done: {
+			case InstallSteps.Done: {
 				spinCog = false
 				stepsStatus.Done = true
 				break

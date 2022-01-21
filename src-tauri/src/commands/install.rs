@@ -10,7 +10,11 @@ use std::env;
 #[derive(Clone)]
 enum InstallSteps {
     DownloadBepInEx,
+    InstallBepInEx,
+    UnixLaunchOption,
+    LaunchGame,
     DownloadWbmZip,
+    InstallWbm,
     Done,
 }
 
@@ -59,13 +63,15 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     //
 
     install_bepinex(&window, game_path).await;
-    download_wbm_zip(&window, game_path).await;
+    unix_launch_option_setup(&window, game_path).await;
+    launch_game_once(&window).await;
+    install_wbm_mod(&window, game_path).await;
 
     //
     //
     //
 
-    util::emit(&window, constants::EVENT_INSTALL, InstallSteps::Done as i64);
+    emit(&window, InstallSteps::Done);
     println!("Install complete!");
 
     return InstallResult::NoErr as i64;
@@ -102,6 +108,7 @@ async fn install_bepinex(window: &Window, game_path: &str) {
             println!("Unzipping BepInEx.zip");
             match util::unzip(bepinex_path.as_str(), &game_path) {
                 Ok(()) => {
+                    emit(&window, InstallSteps::InstallBepInEx);
                     println!("Successfully unzipped BepInEx.zip to {}", game_path);
                 }
 
@@ -119,14 +126,21 @@ async fn install_bepinex(window: &Window, game_path: &str) {
 
     // done
 
-    util::emit(
-        &window,
-        constants::EVENT_INSTALL,
-        InstallSteps::DownloadBepInEx as i64,
-    );
+    emit(&window, InstallSteps::DownloadBepInEx);
 }
 
-async fn download_wbm_zip(window: &Window, game_path: &str) {
+async fn unix_launch_option_setup(window: &Window, game_path: &str) {
+    println!("{}", game_path);
+
+    emit(&window, InstallSteps::UnixLaunchOption);
+}
+
+async fn launch_game_once(window: &Window) {
+    println!("Launch Game once");
+    emit(&window, InstallSteps::LaunchGame);
+}
+
+async fn install_wbm_mod(window: &Window, game_path: &str) {
     // todo: get url of latest zip
 
     let latest_release = &json::parse(util::get_wbm_release_data().await.as_str()).unwrap()[0]
@@ -136,8 +150,37 @@ async fn download_wbm_zip(window: &Window, game_path: &str) {
         util::download_zip_to_cache_dir(latest_release.as_str().unwrap(), "WBM.zip").await;
 
     match download_zip_result {
-        Ok(path) => {
-            println!("downloaded WBM.zip: {}", path)
+        Ok(zip_path) => {
+            let wbm_path = std::path::Path::new(game_path).join("BepInEx/plugins/WBM");
+
+            println!("Removing existing files");
+            match std::fs::remove_dir_all(wbm_path.clone()) {
+                Ok(_) => {}
+                Err(_) => {
+                    panic!("Failed to remove existing WBM mod files");
+                }
+            };
+
+            println!("Creating WBM directory");
+            match std::fs::create_dir_all(wbm_path.clone()) {
+                Ok(_) => {}
+                Err(_) => {
+                    panic!("Failed to create WBM mod directory");
+                }
+            }
+
+            // unzip file
+            // todo: handle unwrap error
+            match util::unzip(zip_path.as_str(), wbm_path.to_str().unwrap()) {
+                Ok(()) => {
+                    emit(&window, InstallSteps::InstallWbm);
+                }
+
+                Err(err) => {
+                    // todo: handle error
+                    panic!("Failed to unzip WBM.zip:{:#?}", err);
+                }
+            };
         }
 
         Err(_) => {
@@ -146,15 +189,11 @@ async fn download_wbm_zip(window: &Window, game_path: &str) {
         }
     }
 
-    // unzip file
-
-    println!("{}", game_path);
-
     // done
 
-    util::emit(
-        &window,
-        constants::EVENT_INSTALL,
-        InstallSteps::DownloadWbmZip as i64,
-    );
+    emit(&window, InstallSteps::DownloadWbmZip);
+}
+
+fn emit(window: &Window, payload: InstallSteps) {
+    util::emit(&window, constants::EVENT_INSTALL, payload as i64);
 }
