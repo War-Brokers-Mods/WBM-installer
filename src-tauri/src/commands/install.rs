@@ -32,7 +32,9 @@ pub async fn install(window: Window, game_path: String) -> i64 {
 
     // todo: download things in parallel when possible
 
+    //
     // get game path
+    //
 
     let game_path = if game_path.is_empty() {
         // if game_path argument is empty, get the default path
@@ -47,14 +49,21 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     } else {
         // otherwise, use the passed value
 
+        // todo: check if game path is valid
         game_path
     };
     let game_path = game_path.as_str();
 
+    //
     // start installation
+    //
 
     install_bepinex(&window, game_path).await;
     download_wbm_zip(&window, game_path).await;
+
+    //
+    //
+    //
 
     util::emit(&window, constants::EVENT_INSTALL, InstallSteps::Done as i64);
     println!("Install complete!");
@@ -85,21 +94,28 @@ async fn install_bepinex(window: &Window, game_path: &str) {
 
     // download file to cache directory
 
+    println!("Downloading BepInEx.zip");
     let result = util::download_zip_to_cache_dir(bepinex_zip_url, "BepInEx.zip").await;
     match result {
-        Ok(path) => {
-            println!("downloaded BepInEx.zip: {}", path);
+        Ok(bepinex_path) => {
+            println!("Downloaded BepInEx.zip: {}", bepinex_path);
+            println!("Unzipping BepInEx.zip");
+            match util::unzip(bepinex_path.as_str(), &game_path) {
+                Ok(()) => {
+                    println!("Successfully unzipped BepInEx.zip to {}", game_path);
+                }
+
+                Err(err) => {
+                    panic!("{:#?}", err);
+                }
+            }
         }
 
         Err(_) => {
             // todo: handle error
-            panic!("failed to download BepInEx.zip")
+            panic!("Failed to download BepInEx.zip")
         }
     }
-
-    // unzip file
-
-    println!("{}", game_path);
 
     // done
 

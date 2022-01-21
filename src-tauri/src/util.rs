@@ -44,6 +44,7 @@ pub fn get_default_game_path() -> Option<String> {
     return None;
 }
 
+/// convert `Option<PathBuf>` to `Option<String>`
 pub fn buf2str(input: Option<PathBuf>) -> Option<String> {
     if input.is_none() {
         return None;
@@ -122,4 +123,12 @@ pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<Str
 /// https://tauri.studio/docs/guides/events
 pub fn emit<S: Serialize>(window: &Window, event: &str, payload: S) {
     window.emit(event, payload).unwrap();
+}
+
+pub fn unzip(path: &str, destination: &str) -> Result<(), zip::result::ZipError> {
+    let fname = std::path::Path::new(path);
+    let zipfile = std::fs::File::open(&fname).unwrap();
+    let mut archive = zip::ZipArchive::new(zipfile).unwrap();
+
+    return archive.extract(destination);
 }

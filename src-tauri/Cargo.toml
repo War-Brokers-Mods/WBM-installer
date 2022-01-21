@@ -16,6 +16,7 @@ tauri = { version = "1.0.0-beta.8", features = ["dialog-open", "path-all", "shel
 reqwest = { version = "0.11.9", features = ["blocking", "json", "stream"] }
 futures-util = "0.3.19"
 json = "0.12.4"
+zip = { version = "0.5.13", default-features = false }
 
 [build-dependencies]
 tauri-build = { version = "1.0.0-beta.4" }
