@@ -1,3 +1,4 @@
+// [Sync]: must be synced with `src/pages/Install/index.svelte`
 use tauri::Window;
 
 use crate::constants;
@@ -5,12 +6,18 @@ use crate::util;
 
 use std::env;
 
-// must be synced with `src/pages/Install/index.svelte`
+// [Sync]
 #[derive(Clone)]
 enum InstallSteps {
     DownloadBepInEx,
     DownloadWbmZip,
     Done,
+}
+
+// [Sync]
+enum InstallResult {
+    NoErr,
+    FailedToGetGamePath,
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -20,19 +27,28 @@ struct InstallPayload(i64);
 
 /// automated version of https://github.com/War-Brokers-Mods/WBM#installation
 #[tauri::command]
-pub async fn install(window: Window) {
+pub async fn install(window: Window, game_path: String) -> i64 {
     println!("Installing WBM");
 
     // todo: download things in parallel when possible
 
     // get game path
 
-    let game_path = util::get_default_game_path();
-    if game_path.is_none() {
-        // todo: handle error
-        panic!("failed to find game install location");
-    }
-    let game_path = game_path.unwrap();
+    let game_path = if game_path.is_empty() {
+        // if game_path argument is empty, get the default path
+
+        let default_game_path = util::get_default_game_path();
+        if default_game_path.is_none() {
+            // failed to find game install location.
+            // Prompt user to manually choose the game location.
+            return InstallResult::FailedToGetGamePath as i64;
+        }
+        default_game_path.unwrap()
+    } else {
+        // otherwise, use the passed value
+
+        game_path
+    };
     let game_path = game_path.as_str();
 
     // start installation
@@ -42,6 +58,8 @@ pub async fn install(window: Window) {
 
     util::emit(&window, constants::EVENT_INSTALL, InstallSteps::Done as i64);
     println!("Install complete!");
+
+    return InstallResult::NoErr as i64;
 }
 
 async fn install_bepinex(window: &Window, game_path: &str) {
