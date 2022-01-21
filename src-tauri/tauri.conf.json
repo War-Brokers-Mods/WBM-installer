@@ -33,14 +33,14 @@
 			"active": false
 		},
 		"allowlist": {
-			"shell": {
-				"open": true
-			},
 			"dialog": {
 				"open": true
 			},
 			"path": {
 				"all": true
+			},
+			"shell": {
+				"open": true
 			}
 		},
 		"windows": [
