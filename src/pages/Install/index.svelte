@@ -42,7 +42,11 @@
 
 	let stepsStatus = {
 		DownloadBepInEx: false,
+		InstallBepInEx: false,
+		LaunchOption: false,
+		LaunchGame: false,
 		DownloadWbmZip: false,
+		InstallWbm: false,
 		Done: false,
 	}
 
@@ -112,6 +116,7 @@
 		<button on:click={install}>Install!</button>
 	{/if}
 
+	<!-- if the game was not found in the default install location  -->
 	{#if isInstallButtonClicked && !wasDefaultGamePathFound}
 		<p>
 			Default game install location was not found :(
@@ -135,24 +140,72 @@
 		>
 	{/if}
 
-	<p>
-		{#if stepsStatus.DownloadBepInEx}
-			Download BepInEx!
-		{/if}
+	{#if isInstallButtonClicked}
+		<div class="steps">
+			<div class="step {stepsStatus.DownloadBepInEx}">
+				<div class="number">1</div>
+				<div class="label">Install BepInEx</div>
+			</div>
+
+			<div class="step {stepsStatus.LaunchGame && 'done'}">
+				<div class="number">2</div>
+				<div class="label">Launch game</div>
+			</div>
+
+			<div class="step {stepsStatus.InstallWbm && 'done'}">
+				<div class="number">3</div>
+				<div class="label">Install Mod</div>
+			</div>
+		</div>
+	{/if}
+
+	{#if stepsStatus.Done}
 		<br />
-		{#if stepsStatus.DownloadWbmZip}
-			Download WBM!
-		{/if}
-		<br />
-		{#if stepsStatus.Done}
-			Done!
-		{/if}
-	</p>
+		<p>
+			You can also optionally setup
+			<!-- svelte-ignore a11y-invalid-attribute -->
+			<a
+				class="link"
+				href="javascript:;"
+				on:click={() => {
+					shellOpen(
+						"https://github.com/War-Brokers-Mods/WBM#3-set-up-obs-optional"
+					)
+				}}
+			>
+				OBS overlays
+			</a>
+			for WB statistics.
+		</p>
+	{/if}
 </div>
 
 <style lang="scss">
 	.install-page {
 		@apply flex flex-col items-center;
+	}
+
+	.steps {
+		@apply grid grid-cols-3 w-full gap-2 p-2;
+
+		.step {
+			/* layout */
+			@apply flex flex-col text-center gap-2 p-2;
+			/* style */
+			@apply rounded-xl bg-neutral-600;
+
+			.number {
+				@apply text-4xl font-bold;
+			}
+
+			.label {
+				@apply text-sm;
+			}
+		}
+
+		.done {
+			@apply bg-red-600;
+		}
 	}
 
 	p {
