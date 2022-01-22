@@ -45,7 +45,7 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     // todo: download things in parallel when possible
 
     //
-    // get game path
+    // Get game path
     //
 
     let game_path = match get_game_path(game_path) {
@@ -56,7 +56,7 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     let game_path = game_path.as_str();
 
     //
-    // start installation
+    // Install BepInEx
     //
 
     match install_bepinex(&window, game_path).await {
@@ -64,15 +64,27 @@ pub async fn install(window: Window, game_path: String) -> i64 {
         Err(err) => return err as i64,
     }
 
+    //
+    // Setup steam launch option if OS is linux or macOS
+    //
+
     match unix_launch_option_setup(&window, game_path).await {
         Ok(()) => {}
         Err(err) => return err as i64,
     }
 
+    //
+    // Run the game once to generate the plugins directory
+    //
+
     match launch_game_once(&window).await {
         Ok(()) => {}
         Err(err) => return err as i64,
     }
+
+    //
+    // Install the mod
+    //
 
     match install_wbm_mod(&window, game_path).await {
         Ok(()) => {}
@@ -80,7 +92,7 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     }
 
     //
-    //
+    // Tell the frontend that the installation was successful
     //
 
     emit(&window, InstallSteps::Done);
