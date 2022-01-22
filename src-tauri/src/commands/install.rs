@@ -11,7 +11,7 @@ use std::env;
 enum InstallSteps {
     DownloadBepInEx,
     InstallBepInEx,
-    UnixLaunchOption,
+    LaunchOption,
     LaunchGame,
     DownloadWbmZip,
     InstallWbm,
@@ -22,6 +22,14 @@ enum InstallSteps {
 enum InstallResult {
     NoErr,
     FailedToGetGamePath,
+    UnsupportedOS,
+    BepInExDownloadFailed,
+    BepInExUnzipFailed,
+    // LaunchOptionFailed,
+    WBMDownloadFailed,
+    WBMRemoveFailed,
+    WBMDirectoryCreationFailed,
+    WBMUnzipFailed,
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -62,10 +70,25 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     // start installation
     //
 
-    install_bepinex(&window, game_path).await;
-    unix_launch_option_setup(&window, game_path).await;
-    launch_game_once(&window).await;
-    install_wbm_mod(&window, game_path).await;
+    match install_bepinex(&window, game_path).await {
+        Ok(()) => {}
+        Err(err) => return err as i64,
+    }
+
+    match unix_launch_option_setup(&window, game_path).await {
+        Ok(()) => {}
+        Err(err) => return err as i64,
+    }
+
+    match launch_game_once(&window).await {
+        Ok(()) => {}
+        Err(err) => return err as i64,
+    }
+
+    match install_wbm_mod(&window, game_path).await {
+        Ok(()) => {}
+        Err(err) => return err as i64,
+    }
 
     //
     //
@@ -77,12 +100,12 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     return InstallResult::NoErr as i64;
 }
 
-async fn install_bepinex(window: &Window, game_path: &str) {
+async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), InstallResult> {
     println!("Installing BepInEx");
 
     // determine which BepInEx file to download
-
     // download URL is updated manually
+    // latest release files can be found here: https://github.com/BepInEx/BepInEx/releases
     let bepinex_zip_url = match env::consts::OS {
         "linux" | "macos" => {
             "https://github.com/BepInEx/BepInEx/releases/download/v5.4.18/BepInEx_unix_5.4.18.0.zip"
@@ -92,20 +115,20 @@ async fn install_bepinex(window: &Window, game_path: &str) {
             "https://github.com/BepInEx/BepInEx/releases/download/v5.4.18/BepInEx_x86_5.4.18.0.zip"
         }
 
-        // todo: provide user feedback instead of terminating
         _ => {
-            panic!("Unsupported OS!");
+            println!("Unsupported OS!");
+            return Err(InstallResult::UnsupportedOS);
         }
     };
 
     // download file to cache directory
 
     println!("Downloading BepInEx.zip");
-    let result = util::download_zip_to_cache_dir(bepinex_zip_url, "BepInEx.zip").await;
-    match result {
+    match util::download_zip_to_cache_dir(bepinex_zip_url, "BepInEx.zip").await {
         Ok(bepinex_path) => {
-            println!("Downloaded BepInEx.zip: {}", bepinex_path);
+            println!("Downloaded BepInEx.zip to '{}'", bepinex_path);
             println!("Unzipping BepInEx.zip");
+
             match util::unzip(bepinex_path.as_str(), &game_path) {
                 Ok(()) => {
                     emit(&window, InstallSteps::InstallBepInEx);
@@ -113,36 +136,45 @@ async fn install_bepinex(window: &Window, game_path: &str) {
                 }
 
                 Err(err) => {
-                    panic!("{:#?}", err);
+                    println!("Failed to unzip BepInEx.zip ({:#?})", err);
+                    return Err(InstallResult::BepInExUnzipFailed);
                 }
             }
         }
 
         Err(_) => {
-            // todo: handle error
-            panic!("Failed to download BepInEx.zip")
+            println!("Failed to download BepInEx.zip");
+            return Err(InstallResult::BepInExDownloadFailed);
         }
     }
 
     // done
 
     emit(&window, InstallSteps::DownloadBepInEx);
+    return Ok(());
 }
 
-async fn unix_launch_option_setup(window: &Window, game_path: &str) {
+async fn unix_launch_option_setup(window: &Window, game_path: &str) -> Result<(), InstallResult> {
+    // skip if the OS is not linux or macOS
+    match env::consts::OS {
+        "linux" | "macos" => {}
+        _ => return Ok(()),
+    };
+    println!("Setting up steam launch options (only for Linux and MacOS)");
     println!("{}", game_path);
 
-    emit(&window, InstallSteps::UnixLaunchOption);
+    emit(&window, InstallSteps::LaunchOption);
+    return Ok(());
 }
 
-async fn launch_game_once(window: &Window) {
+async fn launch_game_once(window: &Window) -> Result<(), InstallResult> {
     println!("Launch Game once");
+
     emit(&window, InstallSteps::LaunchGame);
+    return Ok(());
 }
 
-async fn install_wbm_mod(window: &Window, game_path: &str) {
-    // todo: get url of latest zip
-
+async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), InstallResult> {
     let latest_release = &json::parse(util::get_wbm_release_data().await.as_str()).unwrap()[0]
         ["assets"][0]["browser_download_url"];
 
@@ -157,7 +189,8 @@ async fn install_wbm_mod(window: &Window, game_path: &str) {
             match std::fs::remove_dir_all(wbm_path.clone()) {
                 Ok(_) => {}
                 Err(_) => {
-                    panic!("Failed to remove existing WBM mod files");
+                    println!("Failed to remove existing WBM mod files");
+                    return Err(InstallResult::WBMRemoveFailed);
                 }
             };
 
@@ -165,34 +198,39 @@ async fn install_wbm_mod(window: &Window, game_path: &str) {
             match std::fs::create_dir_all(wbm_path.clone()) {
                 Ok(_) => {}
                 Err(_) => {
-                    panic!("Failed to create WBM mod directory");
+                    println!("Failed to create WBM mod directory");
+                    return Err(InstallResult::WBMDirectoryCreationFailed);
                 }
             }
 
             // unzip file
-            // todo: handle unwrap error
             match util::unzip(zip_path.as_str(), wbm_path.to_str().unwrap()) {
                 Ok(()) => {
                     emit(&window, InstallSteps::InstallWbm);
                 }
 
                 Err(err) => {
-                    // todo: handle error
-                    panic!("Failed to unzip WBM.zip:{:#?}", err);
+                    println!("Failed to unzip WBM.zip: ({:#?})", err);
+                    return Err(InstallResult::WBMUnzipFailed);
                 }
             };
         }
 
         Err(_) => {
-            // todo: handle error
-            panic!("Failed to download WBM.zip");
+            println!("Failed to download WBM.zip");
+            return Err(InstallResult::WBMDownloadFailed);
         }
     }
 
     // done
 
     emit(&window, InstallSteps::DownloadWbmZip);
+    return Ok(());
 }
+
+//
+//
+//
 
 fn emit(window: &Window, payload: InstallSteps) {
     util::emit(&window, constants::EVENT_INSTALL, payload as i64);

@@ -12,7 +12,7 @@
 	enum InstallSteps {
 		DownloadBepInEx,
 		InstallBepInEx,
-		UnixLaunchOption,
+		LaunchOption,
 		LaunchGame,
 		DownloadWbmZip,
 		InstallWbm,
@@ -22,6 +22,14 @@
 	enum InstallResult {
 		NoErr,
 		FailedToGetGamePath,
+		UnsupportedOS,
+		BepInExDownloadFailed,
+		BepInExUnzipFailed,
+		// LaunchOptionFailed,
+		WBMDownloadFailed,
+		WBMRemoveFailed,
+		WBMDirectoryCreationFailed,
+		WBMUnzipFailed,
 	}
 
 	//
