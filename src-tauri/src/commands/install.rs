@@ -48,21 +48,10 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     // get game path
     //
 
-    let game_path = if game_path.is_empty() {
-        // if game_path argument is empty, get the default path
+    let game_path = match get_game_path(game_path) {
+        Ok(game_path) => game_path,
 
-        let default_game_path = util::get_default_game_path();
-        if default_game_path.is_none() {
-            // failed to find game install location.
-            // Prompt user to manually choose the game location.
-            return InstallResult::FailedToGetGamePath as i64;
-        }
-        default_game_path.unwrap()
-    } else {
-        // otherwise, use the passed value
-
-        // todo: check if game path is valid
-        game_path
+        Err(err) => return err as i64,
     };
     let game_path = game_path.as_str();
 
@@ -98,6 +87,27 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     println!("Install complete!");
 
     return InstallResult::NoErr as i64;
+}
+
+fn get_game_path(game_path: String) -> Result<String, InstallResult> {
+    let game_path = if game_path.is_empty() {
+        // if game_path argument is empty, get the default path
+
+        let default_game_path = util::get_default_game_path();
+        if default_game_path.is_none() {
+            // failed to find game install location.
+            // Prompt user to manually choose the game location.
+            return Err(InstallResult::FailedToGetGamePath);
+        }
+        default_game_path.unwrap()
+    } else {
+        // otherwise, use the passed value
+
+        // todo: check if game path is valid
+        game_path
+    };
+
+    return Ok(game_path);
 }
 
 async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), InstallResult> {
