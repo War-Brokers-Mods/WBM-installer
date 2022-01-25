@@ -4,11 +4,13 @@ use tauri::Window;
 use crate::constants;
 use crate::util;
 
+mod launch_options;
+
 use std::env;
 
 // [Sync]
 #[derive(Clone)]
-enum InstallSteps {
+pub enum InstallSteps {
     DownloadBepInEx,
     InstallBepInEx,
     LaunchOption,
@@ -19,13 +21,13 @@ enum InstallSteps {
 }
 
 // [Sync]
-enum InstallResult {
+pub enum InstallResult {
     NoErr,
     FailedToGetGamePath,
     UnsupportedOS,
     BepInExDownloadFailed,
     BepInExUnzipFailed,
-    // LaunchOptionFailed,
+    LaunchOptionFailed,
     WBMDownloadFailed,
     WBMRemoveFailed,
     WBMDirectoryCreationFailed,
@@ -68,7 +70,7 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     // Setup steam launch option if OS is linux or macOS
     //
 
-    match unix_launch_option_setup(&window, game_path).await {
+    match launch_options::unix_launch_option_setup(&window).await {
         Ok(()) => {}
         Err(err) => return err as i64,
     }
@@ -101,6 +103,7 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     return InstallResult::NoErr as i64;
 }
 
+/// Get the absolute path to the game install directory
 fn get_game_path(game_path: String) -> Result<String, InstallResult> {
     let game_path = if game_path.is_empty() {
         // if game_path argument is empty, get the default path
@@ -123,6 +126,7 @@ fn get_game_path(game_path: String) -> Result<String, InstallResult> {
 }
 
 async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), InstallResult> {
+    println!();
     println!("Installing BepInEx");
 
     // determine which BepInEx file to download
@@ -176,20 +180,8 @@ async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), Install
     return Ok(());
 }
 
-async fn unix_launch_option_setup(window: &Window, game_path: &str) -> Result<(), InstallResult> {
-    // skip if the OS is not linux or macOS
-    match env::consts::OS {
-        "linux" | "macos" => {}
-        _ => return Ok(()),
-    };
-    println!("Setting up steam launch options (only for Linux and MacOS)");
-    println!("{}", game_path);
-
-    emit(&window, InstallSteps::LaunchOption);
-    return Ok(());
-}
-
 async fn launch_game_once(window: &Window) -> Result<(), InstallResult> {
+    println!();
     println!("Launch Game once");
 
     emit(&window, InstallSteps::LaunchGame);
@@ -197,6 +189,9 @@ async fn launch_game_once(window: &Window) -> Result<(), InstallResult> {
 }
 
 async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), InstallResult> {
+    println!();
+    println!("Installing WBM mod");
+
     let latest_release = &json::parse(util::get_wbm_release_data().await.as_str()).unwrap()[0]
         ["assets"][0]["browser_download_url"];
 
@@ -254,6 +249,6 @@ async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), Install
 //
 //
 
-fn emit(window: &Window, payload: InstallSteps) {
+pub fn emit(window: &Window, payload: InstallSteps) {
     util::emit(&window, constants::EVENT_INSTALL, payload as i64);
 }

@@ -9,6 +9,7 @@
 
 	import { COMMANDS, EVENTS } from "../../constants"
 
+	// types of event
 	enum InstallSteps {
 		DownloadBepInEx,
 		InstallBepInEx,
@@ -19,13 +20,14 @@
 		Done,
 	}
 
+	// types of install command return codes
 	enum InstallResult {
 		NoErr,
 		FailedToGetGamePath,
 		UnsupportedOS,
 		BepInExDownloadFailed,
 		BepInExUnzipFailed,
-		// LaunchOptionFailed,
+		LaunchOptionFailed,
 		WBMDownloadFailed,
 		WBMRemoveFailed,
 		WBMDirectoryCreationFailed,
