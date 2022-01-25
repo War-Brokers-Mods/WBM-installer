@@ -16,30 +16,56 @@ pub fn build_client() -> reqwest::Client {
         .unwrap();
 }
 
-/// gets path to WB game files.
-pub fn get_default_game_path() -> Option<String> {
+/// Gets platform-specific default steam path.
+pub fn get_default_steam_path() -> Option<String> {
     let home = buf2str(home_dir());
     if home.is_none() {
+        println!("Couldn't get home directory");
         return None;
     }
     let home = home.unwrap();
 
-    let game_path = match std::env::consts::OS {
-        "linux" => format!("{}/.steam/steam/steamapps/common/WarBrokers", home),
-        "macos" => format!(
-            "{}/Library/Application Support/Steam/steamapps/common/WarBrokers",
-            home
-        ),
-        "windows" => String::from("C:\\Program Files (x86)\\Steam\\steamapps\\common\\WarBrokers"),
+    let steam_path = match std::env::consts::OS {
+        "linux" => format!("{}/.steam/steam", home),
+        "macos" => format!("{}/Library/Application Support/Steam", home),
+        "windows" => String::from("C:\\Program Files (x86)\\Steam"),
 
-        _ => return None,
+        _ => {
+            println!("Unsupported OS");
+            return None;
+        }
     };
 
-    if fs::metadata(game_path.as_str()).is_ok() {
-        return Some(String::from(game_path));
+    // check if path is valid
+    if fs::metadata(steam_path.as_str()).is_err() {
+        println!("Default steam path not found");
+        return None;
     }
 
-    return None;
+    return Some(String::from(steam_path));
+}
+
+/// Gets platform-specific default game path.
+pub fn get_default_game_path() -> Option<String> {
+    match get_default_steam_path() {
+        Some(steam_path) => {
+            let game_path = match std::env::consts::OS {
+                "linux" | "macos" => format!("{}/steamapps/common/WarBrokers", steam_path),
+                "windows" => String::from(format!("{}\\steamapps\\common\\WarBrokers", steam_path)),
+
+                _ => return None,
+            };
+
+            if fs::metadata(game_path.as_str()).is_err() {
+                println!("Default game path not found");
+                return None;
+            }
+
+            return Some(String::from(game_path));
+        }
+
+        None => return None,
+    }
 }
 
 /// convert `Option<PathBuf>` to `Option<String>`
