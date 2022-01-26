@@ -1,6 +1,7 @@
 <script lang="ts">
 	import HomeButton from "../../components/HomeButton.svelte"
 	import Spinner from "../../components/Spinner.svelte"
+	import { copy } from "svelte-copy"
 
 	import { invoke } from "@tauri-apps/api/tauri"
 	import { listen } from "@tauri-apps/api/event"
@@ -27,7 +28,6 @@
 		UnsupportedOS,
 		BepInExDownloadFailed,
 		BepInExUnzipFailed,
-		LaunchOptionFailed,
 		WBMDownloadFailed,
 		WBMRemoveFailed,
 		WBMDirectoryCreationFailed,
@@ -161,6 +161,17 @@
 		</div>
 	{/if}
 
+	<div class="instructions">
+		{#if true}
+			<span
+				use:copy={"./run_bepinex.sh %command%"}
+				on:svelte-copy={(event) => alert(event.detail)}
+			>
+				click to copy
+			</span>
+		{/if}
+	</div>
+
 	{#if stepsStatus.Done}
 		<br />
 		<p>
@@ -207,6 +218,14 @@
 
 		.done {
 			@apply bg-red-600;
+		}
+	}
+
+	.instructions {
+		@apply mt-2;
+
+		span {
+			@apply select-all rounded pl-1 pr-1 border-2 border-neutral-600 font-bold;
 		}
 	}
 

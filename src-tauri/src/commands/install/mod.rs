@@ -27,7 +27,6 @@ pub enum InstallResult {
     UnsupportedOS,
     BepInExDownloadFailed,
     BepInExUnzipFailed,
-    LaunchOptionFailed,
     WBMDownloadFailed,
     WBMRemoveFailed,
     WBMDirectoryCreationFailed,
