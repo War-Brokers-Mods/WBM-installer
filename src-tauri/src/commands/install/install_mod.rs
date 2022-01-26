@@ -1,19 +1,32 @@
 use tauri::Window;
 
-use crate::commands::install::{emit, util, InstallSteps};
 use super::InstallResult;
+use crate::commands::install::{emit, util, InstallSteps};
 
 pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), InstallResult> {
     println!();
     println!("Installing WBM mod");
 
-    let latest_release = &json::parse(util::get_wbm_release_data().await.as_str()).unwrap()[0]
-        ["assets"][0]["browser_download_url"];
+    // get the download url for the latest release
+    let latest_release = json::parse(util::get_wbm_release_data().await.as_str());
+    let latest_release = match &latest_release {
+        Ok(data) => match data[0]["assets"][0]["browser_download_url"].as_str() {
+            Some(value) => value,
 
-    let download_zip_result =
-        util::download_zip_to_cache_dir(latest_release.as_str().unwrap(), "WBM.zip").await;
+            None => {
+                println!("Failed to parse latest release");
+                return Err(InstallResult::WBMDownloadFailed);
+            }
+        },
 
-    match download_zip_result {
+        Err(_) => {
+            println!("Failed to get latest release");
+            return Err(InstallResult::WBMDownloadFailed);
+        }
+    };
+
+    // download zip file
+    match util::download_zip_to_cache_dir(latest_release, "WBM.zip").await {
         Ok(zip_path) => {
             let wbm_path = std::path::Path::new(game_path).join("BepInEx/plugins/WBM");
 
