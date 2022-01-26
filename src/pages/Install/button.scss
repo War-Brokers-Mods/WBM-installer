@@ -1,0 +1,7 @@
+button {
+	/* text */
+	@apply text-white font-sans font-semibold tracking-wide text-xl;
+
+	/* style */
+	@apply pt-2 pb-2 pl-3 pr-3 rounded bg-red-600;
+}

@@ -20,7 +20,6 @@ pub async fn unix_launch_option_setup(window: &Window) -> Result<(), InstallResu
     };
 
     println!("Prompt user to launch option");
-
     emit(&window, InstallSteps::LaunchOption);
-    return Ok(());
+    return Err(InstallResult::SetLaunchOption); // stop install
 }

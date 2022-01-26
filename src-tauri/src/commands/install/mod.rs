@@ -1,4 +1,4 @@
-// [Sync]: must be synced with `src/pages/Install/index.svelte`
+// [Sync]: must be synced with `src/pages/Install/types.ts`
 use tauri::Window;
 
 use crate::constants;
@@ -28,6 +28,8 @@ pub enum InstallResult {
     UnsupportedOS,
     BepInExDownloadFailed,
     BepInExUnzipFailed,
+    SetLaunchOption,
+    LaunchGame,
     WBMDownloadFailed,
     WBMRemoveFailed,
     WBMDirectoryCreationFailed,
@@ -44,7 +46,17 @@ struct InstallPayload(i64);
 pub async fn install(window: Window, game_path: String) -> i64 {
     println!("Installing WBM");
 
-    // todo: download things in parallel when possible
+    //
+    // Test if OS is compatible
+    //
+
+    match std::env::consts::OS {
+        "linux" | "macos" | "windows" => {}
+
+        _ => {
+            return InstallResult::UnsupportedOS as i64;
+        }
+    }
 
     //
     // Get game path
