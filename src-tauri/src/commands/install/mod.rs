@@ -41,10 +41,18 @@ struct InstallPayload(i64);
 
 // todo: show current step in the frontend
 
-/// automated version of https://github.com/War-Brokers-Mods/WBM#installation
+/// automated version of the [manual installation](https://github.com/War-Brokers-Mods/WBM#installation).
+///
+/// This function returns if it requires a user input and is called again with the user feedback as its arguments.
+///
+/// ## Arguments
+///
+/// All arguments are empty by default.
+///
+/// * `game_path` - absolute path to the game folder/directory.
 #[tauri::command]
 pub async fn install(window: Window, game_path: String) -> i64 {
-    println!("Installing WBM");
+    println!("install command called");
 
     //
     // Test if OS is compatible
@@ -59,13 +67,22 @@ pub async fn install(window: Window, game_path: String) -> i64 {
     }
 
     //
-    // Get game path
+    // Resolve game path
     //
 
-    let game_path = match util::get_game_path(game_path) {
-        Some(game_path) => game_path,
+    let game_path = if game_path.is_empty() {
+        let default_game_path = match util::get_default_game_path() {
+            Some(path) => path,
 
-        None => return InstallResult::FailedToGetGamePath as i64,
+            // failed to find game install location.
+            // Prompt user to manually choose the game location.
+            None => return InstallResult::FailedToGetGamePath as i64,
+        };
+
+        default_game_path
+    } else {
+        // todo: check if game path is valid and tell the user
+        game_path
     };
     let game_path = game_path.as_str();
 

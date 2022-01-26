@@ -144,28 +144,6 @@ pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<Str
     return Ok(path);
 }
 
-/// Get the absolute path to the game install directory
-pub fn get_game_path(game_path: String) -> Option<String> {
-    let game_path = if game_path.is_empty() {
-        // if game_path argument is empty, get the default path
-
-        let default_game_path = get_default_game_path();
-        if default_game_path.is_none() {
-            // failed to find game install location.
-            // Prompt user to manually choose the game location.
-            return None;
-        }
-        default_game_path.unwrap()
-    } else {
-        // otherwise, use the passed value
-
-        // todo: check if game path is valid
-        game_path
-    };
-
-    return Some(game_path);
-}
-
 /// https://tauri.studio/docs/guides/events
 pub fn emit<S: serde::Serialize>(window: &Window, event: &str, payload: S) {
     window.emit(event, payload).unwrap();
