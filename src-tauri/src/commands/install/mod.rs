@@ -82,6 +82,7 @@ pub async fn install(
         "linux" | "macos" | "windows" => {}
 
         _ => {
+            println!("Unsupported OS!");
             return InstallResult::UnsupportedOS as i64;
         }
     }

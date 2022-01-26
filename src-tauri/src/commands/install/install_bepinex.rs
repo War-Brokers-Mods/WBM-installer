@@ -10,8 +10,10 @@ pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), Ins
     println!();
     println!("Installing BepInEx");
 
+    //
     // determine which BepInEx file to download
-    // download URL is updated manually
+    //
+
     // latest release files can be found here: https://github.com/BepInEx/BepInEx/releases
     let bepinex_zip_url = match env::consts::OS {
         "linux" | "macos" => {
@@ -28,18 +30,24 @@ pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), Ins
         }
     };
 
+    //
     // download file to cache directory
+    //
 
     println!("Downloading BepInEx.zip");
     match util::download_zip_to_cache_dir(bepinex_zip_url, "BepInEx.zip").await {
         Ok(bepinex_path) => {
+            //
+            // unzip
+            //
+
             println!("Downloaded BepInEx.zip to '{}'", bepinex_path);
             println!("Unzipping BepInEx.zip");
 
             match util::unzip(bepinex_path.as_str(), &game_path) {
-                Ok(()) => {
-                    emit(&window, InstallSteps::InstallBepInEx);
+                Ok(_) => {
                     println!("Successfully unzipped BepInEx.zip to {}", game_path);
+                    emit(&window, InstallSteps::InstallBepInEx);
                 }
 
                 Err(err) => {
