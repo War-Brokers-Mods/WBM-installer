@@ -56,26 +56,6 @@
 	// functions
 	//
 
-	listen<InstallSteps>(EVENTS.INSTALL, (event) => {
-		switch (event.payload) {
-			case InstallSteps.DownloadBepInEx: {
-				stepsStatus.DownloadBepInEx = true
-				break
-			}
-
-			case InstallSteps.DownloadWbmZip: {
-				stepsStatus.DownloadWbmZip = true
-				break
-			}
-
-			case InstallSteps.Done: {
-				spinCog = false
-				stepsStatus.Done = true
-				break
-			}
-		}
-	})
-
 	function _install(gamePath = "") {
 		isInstallButtonClicked = true
 		spinCog = true
@@ -103,6 +83,46 @@
 			_install(gamePath as string)
 		})
 	}
+
+	//
+	// Event listener
+	//
+
+	listen<InstallSteps>(EVENTS.INSTALL, (event) => {
+		switch (event.payload) {
+			case InstallSteps.DownloadBepInEx: {
+				stepsStatus.DownloadBepInEx = true
+				break
+			}
+
+			case InstallSteps.InstallBepInEx: {
+				break
+			}
+
+			case InstallSteps.LaunchOption: {
+				break
+			}
+
+			case InstallSteps.LaunchGame: {
+				break
+			}
+
+			case InstallSteps.DownloadWbmZip: {
+				stepsStatus.DownloadWbmZip = true
+				break
+			}
+
+			case InstallSteps.InstallWbm: {
+				break
+			}
+
+			case InstallSteps.Done: {
+				spinCog = false
+				stepsStatus.Done = true
+				break
+			}
+		}
+	})
 </script>
 
 <!-- Allow user to go back to home until they click the install button -->
