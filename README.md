@@ -2,6 +2,10 @@
 
 Installer for War Brokers Mods (WBM).
 
+<p align="center">
+  <img alt="Installer image" src="./.repo/image.png" />
+</p>
+
 ## Installing
 
 instructions
