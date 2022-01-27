@@ -20,7 +20,6 @@
 
 	interface Args {
 		gamePath: string
-		isLaunchOptionSet: boolean
 		wasGameLaunched: boolean
 	}
 
@@ -92,7 +91,6 @@
 	function install() {
 		_install({
 			gamePath: _gamePath,
-			isLaunchOptionSet: false,
 			wasGameLaunched: false,
 		})
 	}
@@ -105,7 +103,6 @@
 			_gamePath = value as string
 			_install({
 				gamePath: _gamePath,
-				isLaunchOptionSet: false,
 				wasGameLaunched: false,
 			})
 		})
@@ -117,7 +114,6 @@
 	function setSteamLaunchOptionAndInstall() {
 		_install({
 			gamePath: _gamePath,
-			isLaunchOptionSet: true,
 			wasGameLaunched: false,
 		})
 	}
@@ -128,7 +124,6 @@
 	function launchGameAndInstall() {
 		_install({
 			gamePath: _gamePath,
-			isLaunchOptionSet: true,
 			wasGameLaunched: true,
 		})
 	}

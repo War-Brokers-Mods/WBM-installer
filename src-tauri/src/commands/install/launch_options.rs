@@ -52,7 +52,12 @@ fn is_already_set() -> bool {
 
     match fs::read_to_string(localconfig_path) {
         Ok(content) => {
-            return content.contains("./run_bepinex.sh %command%");
+            // todo: improve logic
+            // 1. find line only containing "750470"
+            // 2. find next closest line only containing "}"
+            // 3. check if section contains "./run_bepinex.sh %command%"
+
+            return content.contains("./run_bepinex.sh %command%") && content.contains("750470");
         }
 
         Err(err) => {

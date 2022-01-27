@@ -70,13 +70,11 @@ struct InstallPayload(i64);
 ///
 /// * `window` - standard tauri argument. See [docs](https://tauri.studio/docs/guides/command#accessing-the-window-in-commands) for more info.
 /// * `game_path` - absolute path to the game folder/directory.
-/// * `is_launch_option_set` - whether if the steam launch option for the game is set or not.
 /// * `was_game_launched` - whether if the game was launched once after installing BepInEx to generate the plugins folder.
 #[tauri::command]
 pub async fn install(
     window: Window,
     game_path: String,
-    is_launch_option_set: bool,
     was_game_launched: bool,
 ) -> Result<InstallResult, InstallErr> {
     println!("install command called");
@@ -118,29 +116,25 @@ pub async fn install(
     // Install BepInEx
     //
 
-    if !is_launch_option_set {
-        match install_bepinex::install_bepinex(&window, game_path).await {
-            Ok(()) => {}
-            Err(err) => return Err(err),
-        }
+    match install_bepinex::install_bepinex(&window, game_path).await {
+        Ok(()) => {}
+        Err(err) => return Err(err),
     }
 
     //
     // Setup steam launch option if OS is linux or macOS
     //
 
-    if !was_game_launched {
-        match launch_options::unix_launch_option_setup(&window).await {
-            Ok(_) => {}
-            Err(err) => return Err(err),
-        }
+    match launch_options::unix_launch_option_setup(&window).await {
+        Ok(_) => {}
+        Err(err) => return Err(err),
     }
 
     //
     // Run the game once to generate the plugins directory
     //
 
-    match launch_game::launch_game_once(&window).await {
+    match launch_game::launch_game_once(&window, was_game_launched).await {
         Ok(res) => {
             if res != InstallResult::Skip {
                 return Ok(res);
