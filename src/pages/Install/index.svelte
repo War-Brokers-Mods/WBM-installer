@@ -19,15 +19,16 @@
 	import type { InstallStatus } from "./types"
 
 	interface Args {
-		gamePath?: string
-		isLaunchOptionSet?: boolean
-		wasGameLaunched?: boolean
+		gamePath: string
+		isLaunchOptionSet: boolean
+		wasGameLaunched: boolean
 	}
 
 	//
 	// variables
 	//
 
+	let _gamePath = ""
 	let lastReturnStatus: InstallResult = undefined
 	let lastErrStaus: InstallErr = undefined
 	let didLastRunFail = false
@@ -89,15 +90,24 @@
 	 * entry point
 	 */
 	function install() {
-		_install({})
+		_install({
+			gamePath: _gamePath,
+			isLaunchOptionSet: false,
+			wasGameLaunched: false,
+		})
 	}
 
 	/**
 	 * called when default game path was not found.
 	 */
 	function selectGamePathAndInstall() {
-		dialogOpen({ directory: true, multiple: false }).then((gamePath) => {
-			_install({ gamePath: gamePath as string })
+		dialogOpen({ directory: true, multiple: false }).then((value) => {
+			_gamePath = value as string
+			_install({
+				gamePath: _gamePath,
+				isLaunchOptionSet: false,
+				wasGameLaunched: false,
+			})
 		})
 	}
 
@@ -105,14 +115,22 @@
 	 * called after setting the steam launch option.
 	 */
 	function setSteamLaunchOptionAndInstall() {
-		_install({ isLaunchOptionSet: true })
+		_install({
+			gamePath: _gamePath,
+			isLaunchOptionSet: true,
+			wasGameLaunched: false,
+		})
 	}
 
 	/**
 	 * called after launching the game once.
 	 */
 	function launchGameAndInstall() {
-		_install({ isLaunchOptionSet: true, wasGameLaunched: true })
+		_install({
+			gamePath: _gamePath,
+			isLaunchOptionSet: true,
+			wasGameLaunched: true,
+		})
 	}
 
 	//
