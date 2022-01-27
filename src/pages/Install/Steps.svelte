@@ -5,7 +5,7 @@
 </script>
 
 <div class="steps">
-	<div class="step {installStatus.DownloadBepInEx}">
+	<div class="step {installStatus.DownloadBepInEx && 'done'}">
 		<div class="number">1</div>
 		<div class="label">Install BepInEx</div>
 	</div>
