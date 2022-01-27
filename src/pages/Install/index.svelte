@@ -15,14 +15,22 @@
 
 	// types
 	import { COMMANDS, EVENTS } from "../../constants"
-	import { InstallResult, InstallSteps } from "./types"
+	import { InstallErr, InstallResult, InstallSteps } from "./types"
 	import type { InstallStatus } from "./types"
+
+	interface Args {
+		gamePath?: string
+		isLaunchOptionSet?: boolean
+		wasGameLaunched?: boolean
+	}
 
 	//
 	// variables
 	//
 
 	let lastReturnStatus: InstallResult = undefined
+	let lastErrStaus: InstallErr = undefined
+	let didLastRunFail = false
 	let wasInstallButtonClicked = false
 	let spinCog = false
 
@@ -40,73 +48,71 @@
 	// functions
 	//
 
-	function _install(gamePath = "") {
+	/**
+	 * only used inside other install functions.
+	 * Is never called directly.
+	 *
+	 * @param {Args} args
+	 */
+	function _install(args: Args) {
 		wasInstallButtonClicked = true
 		spinCog = true
 
-		invoke<InstallResult>(COMMANDS.INSTALL, { gamePath }).then((res) => {
-			lastReturnStatus = res
+		invoke<InstallResult>(COMMANDS.INSTALL, args as any)
+			.then((res) => {
+				lastReturnStatus = res
 
-			switch (res) {
-				case InstallResult.NoErr: {
-					break
-				}
+				switch (res) {
+					case InstallResult.NoErr: {
+						break
+					}
 
-				case InstallResult.FailedToGetGamePath: {
-					break
-				}
+					case InstallResult.SetLaunchOption: {
+						break
+					}
 
-				case InstallResult.UnsupportedOS: {
-					break
-				}
+					case InstallResult.LaunchGame: {
+						break
+					}
 
-				case InstallResult.BepInExDownloadFailed: {
-					break
+					case InstallResult.Skip: {
+						break
+					}
 				}
-
-				case InstallResult.BepInExUnzipFailed: {
-					break
-				}
-
-				case InstallResult.SetLaunchOption: {
-					break
-				}
-
-				case InstallResult.LaunchGame: {
-					break
-				}
-
-				case InstallResult.WBMDownloadFailed: {
-					break
-				}
-
-				case InstallResult.WBMRemoveFailed: {
-					break
-				}
-
-				case InstallResult.WBMDirectoryCreationFailed: {
-					break
-				}
-
-				case InstallResult.WBMUnzipFailed: {
-					break
-				}
-
-				case InstallResult.NoErr: {
-					break
-				}
-			}
-		})
+			})
+			.catch((err: InstallErr) => {
+				console.log(typeof err, err)
+			})
 	}
 
+	/**
+	 * entry point
+	 */
 	function install() {
-		_install()
+		_install({})
 	}
 
+	/**
+	 * called when default game path was not found.
+	 */
 	function selectGamePathAndInstall() {
 		dialogOpen({ directory: true, multiple: false }).then((gamePath) => {
-			_install(gamePath as string)
+			_install({ gamePath: gamePath as string })
 		})
+	}
+
+	/**
+	 * called after setting the steam launch option.
+	 */
+	function setSteamLaunchOptionAndInstall() {
+		_install({ isLaunchOptionSet: true })
+	}
+
+	/**
+	 * called after launching the game once.
+	 */
+	function launchGameAndInstall() {
+		_install({ isLaunchOptionSet: true, wasGameLaunched: true })
 	}
 
 	//
@@ -169,7 +175,14 @@
 	<!-- show only when the install button is clicked -->
 	{#if wasInstallButtonClicked}
 		<Steps {installStatus} />
-		<Interrupts {installStatus} {lastReturnStatus} {selectGamePathAndInstall} />
+		<Interrupts
+			{installStatus}
+			{lastReturnStatus}
+			{lastErrStaus}
+			{selectGamePathAndInstall}
+			{setSteamLaunchOptionAndInstall}
+			{launchGameAndInstall}
+		/>
 
 		{#if installStatus.Done}
 			<Complete />

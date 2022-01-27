@@ -10,7 +10,7 @@ mod launch_game;
 mod launch_options;
 
 // [Sync]
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize)]
 pub enum InstallSteps {
     DownloadBepInEx,
     InstallBepInEx,
@@ -22,14 +22,21 @@ pub enum InstallSteps {
 }
 
 // [Sync]
+#[derive(serde::Serialize, PartialEq)]
 pub enum InstallResult {
     NoErr,
+    SetLaunchOption,
+    LaunchGame,
+    Skip, // only used for subcommands
+}
+
+// [Sync]
+#[derive(serde::Serialize)]
+pub enum InstallErr {
     FailedToGetGamePath,
     UnsupportedOS,
     BepInExDownloadFailed,
     BepInExUnzipFailed,
-    SetLaunchOption,
-    LaunchGame,
     WBMDownloadFailed,
     WBMRemoveFailed,
     WBMDirectoryCreationFailed,
@@ -71,7 +78,7 @@ pub async fn install(
     game_path: String,
     is_launch_option_set: bool,
     was_game_launched: bool,
-) -> i64 {
+) -> Result<InstallResult, InstallErr> {
     println!("install command called");
 
     //
@@ -83,7 +90,7 @@ pub async fn install(
 
         _ => {
             println!("Unsupported OS!");
-            return InstallResult::UnsupportedOS as i64;
+            return Err(InstallErr::UnsupportedOS);
         }
     }
 
@@ -97,7 +104,7 @@ pub async fn install(
 
             // failed to find game install location.
             // Prompt user to manually choose the game location.
-            None => return InstallResult::FailedToGetGamePath as i64,
+            None => return Err(InstallErr::FailedToGetGamePath),
         };
 
         default_game_path
@@ -114,7 +121,7 @@ pub async fn install(
     if !is_launch_option_set {
         match install_bepinex::install_bepinex(&window, game_path).await {
             Ok(()) => {}
-            Err(err) => return err as i64,
+            Err(err) => return Err(err),
         }
     }
 
@@ -124,8 +131,8 @@ pub async fn install(
 
     if !was_game_launched {
         match launch_options::unix_launch_option_setup(&window).await {
-            Ok(()) => {}
-            Err(err) => return err as i64,
+            Ok(_) => {}
+            Err(err) => return Err(err),
         }
     }
 
@@ -134,8 +141,12 @@ pub async fn install(
     //
 
     match launch_game::launch_game_once(&window).await {
-        Ok(()) => {}
-        Err(err) => return err as i64,
+        Ok(res) => {
+            if res != InstallResult::Skip {
+                return Ok(res);
+            }
+        }
+        Err(err) => return Err(err),
     }
 
     //
@@ -144,7 +155,7 @@ pub async fn install(
 
     match install_mod::install_wbm_mod(&window, game_path).await {
         Ok(()) => {}
-        Err(err) => return err as i64,
+        Err(err) => return Err(err),
     }
 
     //
@@ -154,9 +165,9 @@ pub async fn install(
     emit(&window, InstallSteps::Done);
     println!("Install complete!");
 
-    return InstallResult::NoErr as i64;
+    return Ok(InstallResult::NoErr);
 }
 
 pub fn emit(window: &Window, payload: InstallSteps) {
-    util::emit(&window, constants::EVENT_INSTALL, payload as i64);
+    util::emit(&window, constants::EVENT_INSTALL, payload);
 }

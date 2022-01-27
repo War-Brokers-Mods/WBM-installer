@@ -1,9 +1,9 @@
 use tauri::Window;
 
-use super::InstallResult;
+use super::InstallErr;
 use crate::commands::install::{emit, util, InstallSteps};
 
-pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), InstallResult> {
+pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), InstallErr> {
     println!();
     println!("Installing WBM mod");
 
@@ -15,13 +15,13 @@ pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), Ins
 
             None => {
                 println!("Failed to parse latest release");
-                return Err(InstallResult::WBMDownloadFailed);
+                return Err(InstallErr::WBMDownloadFailed);
             }
         },
 
         Err(_) => {
             println!("Failed to get latest release");
-            return Err(InstallResult::WBMDownloadFailed);
+            return Err(InstallErr::WBMDownloadFailed);
         }
     };
 
@@ -35,7 +35,7 @@ pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), Ins
                 Ok(_) => {}
                 Err(_) => {
                     println!("Failed to remove existing WBM mod files");
-                    return Err(InstallResult::WBMRemoveFailed);
+                    return Err(InstallErr::WBMRemoveFailed);
                 }
             };
 
@@ -44,7 +44,7 @@ pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), Ins
                 Ok(_) => {}
                 Err(_) => {
                     println!("Failed to create WBM mod directory");
-                    return Err(InstallResult::WBMDirectoryCreationFailed);
+                    return Err(InstallErr::WBMDirectoryCreationFailed);
                 }
             }
 
@@ -56,14 +56,14 @@ pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), Ins
 
                 Err(err) => {
                     println!("Failed to unzip WBM.zip: ({:#?})", err);
-                    return Err(InstallResult::WBMUnzipFailed);
+                    return Err(InstallErr::WBMUnzipFailed);
                 }
             };
         }
 
         Err(_) => {
             println!("Failed to download WBM.zip");
-            return Err(InstallResult::WBMDownloadFailed);
+            return Err(InstallErr::WBMDownloadFailed);
         }
     }
 

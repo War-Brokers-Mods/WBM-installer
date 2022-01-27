@@ -1,12 +1,12 @@
 use tauri::Window;
 
-use super::InstallResult;
+use super::{InstallErr, InstallResult};
 use crate::commands::install::{emit, InstallSteps};
 use crate::util;
 
 use std::fs;
 
-pub async fn unix_launch_option_setup(window: &Window) -> Result<(), InstallResult> {
+pub async fn unix_launch_option_setup(window: &Window) -> Result<InstallResult, InstallErr> {
     // skip if the OS is not linux or macOS
     match std::env::consts::OS {
         "linux" | "macos" => {
@@ -18,18 +18,18 @@ pub async fn unix_launch_option_setup(window: &Window) -> Result<(), InstallResu
             println!();
             println!("Skipping unix launch option setup");
 
-            return Ok(());
+            return Ok(InstallResult::Skip);
         }
     };
 
     if is_already_set() {
         println!("Steam launch option is already set. Skipping.");
-        return Ok(());
+        return Ok(InstallResult::Skip);
     }
 
-    println!("Prompt user to launch option");
+    println!("Prompt user to set launch option");
     emit(&window, InstallSteps::LaunchOption);
-    return Err(InstallResult::SetLaunchOption); // stop install function
+    return Ok(InstallResult::SetLaunchOption);
 }
 
 fn is_already_set() -> bool {

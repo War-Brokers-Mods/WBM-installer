@@ -12,12 +12,16 @@ export enum InstallSteps {
 // types of install command return codes
 export enum InstallResult {
 	NoErr,
+	SetLaunchOption,
+	LaunchGame,
+	Skip, // only used for subcommands
+}
+
+export enum InstallErr {
 	FailedToGetGamePath,
 	UnsupportedOS,
 	BepInExDownloadFailed,
 	BepInExUnzipFailed,
-	SetLaunchOption,
-	LaunchGame,
 	WBMDownloadFailed,
 	WBMRemoveFailed,
 	WBMDirectoryCreationFailed,

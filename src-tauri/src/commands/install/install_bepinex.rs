@@ -2,11 +2,11 @@ use std::env;
 
 use tauri::Window;
 
-use super::InstallResult;
+use super::InstallErr;
 use crate::commands::install::{emit, InstallSteps};
 use crate::util;
 
-pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), InstallResult> {
+pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), InstallErr> {
     println!();
     println!("Installing BepInEx");
 
@@ -26,7 +26,7 @@ pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), Ins
 
         _ => {
             println!("Unsupported OS!");
-            return Err(InstallResult::UnsupportedOS);
+            return Err(InstallErr::UnsupportedOS);
         }
     };
 
@@ -52,14 +52,14 @@ pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), Ins
 
                 Err(err) => {
                     println!("Failed to unzip BepInEx.zip ({:#?})", err);
-                    return Err(InstallResult::BepInExUnzipFailed);
+                    return Err(InstallErr::BepInExUnzipFailed);
                 }
             }
         }
 
         Err(_) => {
             println!("Failed to download BepInEx.zip");
-            return Err(InstallResult::BepInExDownloadFailed);
+            return Err(InstallErr::BepInExDownloadFailed);
         }
     }
 

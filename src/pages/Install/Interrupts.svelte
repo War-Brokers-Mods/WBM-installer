@@ -3,11 +3,15 @@
 	import { open as shellOpen } from "@tauri-apps/api/shell"
 
 	import type { InstallStatus } from "./types"
+	import { InstallErr } from "./types"
 	import { InstallResult } from "./types"
 
 	export let lastReturnStatus: InstallResult
+	export let lastErrStaus: InstallErr
 	export let installStatus: InstallStatus
 	export let selectGamePathAndInstall: () => void
+	export let setSteamLaunchOptionAndInstall: () => void
+	export let launchGameAndInstall: () => void
 </script>
 
 <div class="interrupts">
@@ -19,10 +23,12 @@
 		>
 			click to copy
 		</span>
+
+		<button on:click={setSteamLaunchOptionAndInstall}>Resume</button>
 	{/if}
 
 	<!-- if the game was not found in the default install location  -->
-	{#if lastReturnStatus == InstallResult.FailedToGetGamePath}
+	{#if lastErrStaus == InstallErr.FailedToGetGamePath}
 		<p>
 			Default game install location was not found :(
 			<br />
@@ -45,6 +51,11 @@
 		<button on:click={selectGamePathAndInstall}>
 			Select folder and Install
 		</button>
+	{/if}
+
+	{#if lastReturnStatus == InstallResult.LaunchGame}
+		Launch game
+		<button on:click={launchGameAndInstall}>Resume</button>
 	{/if}
 </div>
 

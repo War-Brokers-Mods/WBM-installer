@@ -1,12 +1,12 @@
 use tauri::Window;
 
-use super::InstallResult;
+use super::{InstallErr, InstallResult};
 use crate::commands::install::{emit, InstallSteps};
 
-pub async fn launch_game_once(window: &Window) -> Result<(), InstallResult> {
+pub async fn launch_game_once(window: &Window) -> Result<InstallResult, InstallErr> {
     println!();
     println!("Launch Game once");
 
     emit(&window, InstallSteps::LaunchGame);
-    return Err(InstallResult::LaunchGame); // stop install
+    return Ok(InstallResult::LaunchGame); // stop install
 }
