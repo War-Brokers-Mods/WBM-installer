@@ -1,50 +1,16 @@
-// [Sync]: must be synced with `src/pages/Install/types.ts`
 use tauri::Window;
 
 use crate::constants;
 use crate::util;
+
+mod types;
 
 mod install_bepinex;
 mod install_mod;
 mod launch_game;
 mod launch_options;
 
-// [Sync]
-#[derive(Clone, serde::Serialize)]
-pub enum InstallSteps {
-    DownloadBepInEx,
-    InstallBepInEx,
-    LaunchOption,
-    LaunchGame,
-    DownloadWbmZip,
-    InstallWbm,
-    Done,
-}
-
-// [Sync]
-#[derive(serde::Serialize, PartialEq)]
-pub enum InstallResult {
-    NoErr,
-    SetLaunchOption,
-    LaunchGame,
-    Skip, // only used for subcommands
-}
-
-// [Sync]
-#[derive(serde::Serialize)]
-pub enum InstallErr {
-    FailedToGetGamePath,
-    UnsupportedOS,
-    BepInExDownloadFailed,
-    BepInExUnzipFailed,
-    WBMDownloadFailed,
-    WBMRemoveFailed,
-    WBMDirectoryCreationFailed,
-    WBMUnzipFailed,
-}
-
-#[derive(Clone, serde::Serialize)]
-struct InstallPayload(i64);
+use types::{InstallErr, InstallResult, InstallSteps};
 
 // todo: show current step in the frontend
 
