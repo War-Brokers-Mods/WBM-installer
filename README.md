@@ -17,8 +17,7 @@ instructions
 Running `yarn tauri XXX` command will use a LOT (I mean A **LOT**) of computing resource.
 No worries though, this is only for the first execution and it will be much quicker next time.
 
-- versions in [`./src-tauri/Cargo.toml`](./src-tauri/Cargo.toml) is irrelevant. The version in [`./src-tauri/tauri.conf.json`](./src-tauri/tauri.conf.json) is the real deal.
-- Icons are from [svelte-icons](https://github.com/Introvertuous/svelte-icons)
+I highly recommend reading the [tauri documentation](https://tauri.studio) before writing any code.
 
 ### 0. Requirements
 
