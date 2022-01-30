@@ -1,12 +1,9 @@
 use std::env;
 
-use tauri::Window;
-
 use super::InstallErr;
-use crate::commands::install::{emit, InstallSteps};
 use crate::util;
 
-pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), InstallErr> {
+pub async fn install_bepinex(game_path: &str) -> Result<(), InstallErr> {
     println!();
     println!("Installing BepInEx");
 
@@ -47,7 +44,6 @@ pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), Ins
             match util::unzip(bepinex_path.as_str(), &game_path) {
                 Ok(_) => {
                     println!("Successfully unzipped BepInEx.zip to {}", game_path);
-                    emit(&window, InstallSteps::InstallBepInEx);
                 }
 
                 Err(err) => {
@@ -65,6 +61,5 @@ pub async fn install_bepinex(window: &Window, game_path: &str) -> Result<(), Ins
 
     // done
 
-    emit(&window, InstallSteps::DownloadBepInEx);
     return Ok(());
 }

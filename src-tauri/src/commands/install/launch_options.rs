@@ -1,12 +1,9 @@
-use tauri::Window;
-
-use super::{InstallErr, InstallResult};
-use crate::commands::install::{emit, InstallSteps};
+use super::InstallErr;
 use crate::util;
 
 use std::fs;
 
-pub async fn unix_launch_option_setup(window: &Window) -> Result<InstallResult, InstallErr> {
+pub async fn unix_launch_option_setup() -> Result<(), InstallErr> {
     // skip if the OS is not linux or macOS
     match std::env::consts::OS {
         "linux" | "macos" => {
@@ -18,18 +15,18 @@ pub async fn unix_launch_option_setup(window: &Window) -> Result<InstallResult, 
             println!();
             println!("Skipping unix launch option setup");
 
-            return Ok(InstallResult::Skip);
+            return Ok(());
         }
     };
 
     if is_already_set() {
         println!("Steam launch option is already set. Skipping.");
-        return Ok(InstallResult::Skip);
+        return Ok(());
     }
 
-    println!("Prompt user to set launch option");
-    emit(&window, InstallSteps::LaunchOption);
-    return Ok(InstallResult::SetLaunchOption);
+    println!("Steam launch option is either not set or invalid.");
+    println!("Prompting to set launch option.");
+    return Err(InstallErr::LaunchOptionNotSet);
 }
 
 fn is_already_set() -> bool {
@@ -51,13 +48,17 @@ fn is_already_set() -> bool {
     //
 
     match fs::read_to_string(localconfig_path) {
-        Ok(content) => {
+        Ok(_content) => {
             // todo: improve logic
             // 1. find line only containing "750470"
             // 2. find next closest line only containing "}"
             // 3. check if section contains "./run_bepinex.sh %command%"
 
-            return content.contains("./run_bepinex.sh %command%") && content.contains("750470");
+            // run_bepinex.sh
+            // %command%
+            // 750470
+
+            return true;
         }
 
         Err(err) => {

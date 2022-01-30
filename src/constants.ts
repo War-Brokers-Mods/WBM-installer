@@ -1,20 +1,11 @@
 export enum ROUTES {
 	HOME = "#/",
-	STATUS = "#/status",
-	INSTALL = "#/install",
-	UPDATE = "#/update",
+	INSTALL = "#/operation?action=install",
+	REMOVE = "#/operation?action=remove",
 }
 
 // https://tauri.studio/docs/guides/command
 export enum COMMANDS {
-	STATUS = "status",
 	INSTALL = "install",
-	UPDATE = "update",
-}
-
-// https://tauri.studio/docs/guides/events
-export enum EVENTS {
-	STATUS = "status",
-	INSTALL = "install",
-	UPDATE = "update",
+	REMOVE = "remove",
 }

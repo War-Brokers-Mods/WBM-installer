@@ -1,9 +1,7 @@
-use tauri::Window;
-
 use super::InstallErr;
-use crate::commands::install::{emit, util, InstallSteps};
+use crate::commands::install::util;
 
-pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), InstallErr> {
+pub async fn install_wbm_mod(game_path: &str) -> Result<(), InstallErr> {
     println!();
     println!("Installing WBM mod");
 
@@ -50,9 +48,7 @@ pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), Ins
 
             // unzip file
             match util::unzip(zip_path.as_str(), wbm_path.to_str().unwrap()) {
-                Ok(()) => {
-                    emit(&window, InstallSteps::InstallWbm);
-                }
+                Ok(()) => {}
 
                 Err(err) => {
                     println!("Failed to unzip WBM.zip: ({:#?})", err);
@@ -69,6 +65,5 @@ pub async fn install_wbm_mod(window: &Window, game_path: &str) -> Result<(), Ins
 
     // done
 
-    emit(&window, InstallSteps::DownloadWbmZip);
     return Ok(());
 }

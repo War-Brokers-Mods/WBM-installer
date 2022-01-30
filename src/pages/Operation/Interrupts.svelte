@@ -1,22 +1,25 @@
 <script lang="ts">
+	/**
+	 * Show what the user has to do during instalation
+	 */
+
 	import { copy } from "svelte-copy"
 	import { open as shellOpen } from "@tauri-apps/api/shell"
 
-	import type { InstallStatus } from "./types"
 	import { InstallErr } from "./types"
-	import { InstallResult } from "./types"
 
-	export let lastReturnStatus: InstallResult
 	export let lastErrStaus: InstallErr
-	export let installStatus: InstallStatus
-	export let selectGamePathAndInstall: () => void
+
 	export let setSteamLaunchOptionAndInstall: () => void
-	export let launchGameAndInstall: () => void
+	export let selectGamePathAndInstall: () => void
 </script>
 
 <div class="interrupts">
-	<!-- set game launch option -->
-	{#if installStatus.LaunchOption}
+	<!--
+		set game launch option
+	-->
+
+	{#if lastErrStaus == InstallErr.LaunchOptionNotSet}
 		<span
 			use:copy={"./run_bepinex.sh %command%"}
 			on:svelte-copy={(event) => alert(event.detail)}
@@ -27,7 +30,10 @@
 		<button on:click={setSteamLaunchOptionAndInstall}>Resume</button>
 	{/if}
 
-	<!-- if the game was not found in the default install location  -->
+	<!--
+		if the game was not found in the default install location
+	-->
+
 	{#if lastErrStaus == InstallErr.FailedToGetGamePath}
 		<p>
 			Default game install location was not found :(
@@ -52,18 +58,13 @@
 			Select folder and Install
 		</button>
 	{/if}
-
-	{#if lastReturnStatus == InstallResult.LaunchGame}
-		Launch game
-		<button on:click={launchGameAndInstall}>Resume</button>
-	{/if}
 </div>
 
 <style lang="scss">
+	@import "./styles/button.scss";
+
 	.interrupts {
 		@apply mt-2;
-
-		@import "./button.scss";
 
 		p {
 			@apply text-center;

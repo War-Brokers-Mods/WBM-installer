@@ -1,5 +1,4 @@
 use tauri::api::path::{cache_dir, home_dir};
-use tauri::Window;
 
 use futures_util::StreamExt;
 use std::cmp::min;
@@ -61,11 +60,22 @@ pub fn get_default_game_path() -> Option<String> {
                 return None;
             }
 
+            if !is_game_path_valid(&game_path) {
+                return None;
+            }
+
             return Some(String::from(game_path));
         }
 
         None => return None,
     }
+}
+
+/// Checks if the path is a valid War Brokers game path
+pub fn is_game_path_valid(_game_path: &str) -> bool {
+    // todo: implement logic
+
+    return true;
 }
 
 /// convert `Option<PathBuf>` to `Option<String>`
@@ -144,15 +154,17 @@ pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<Str
     return Ok(path);
 }
 
-/// https://tauri.studio/docs/guides/events
-pub fn emit<S: serde::Serialize>(window: &Window, event: &str, payload: S) {
-    window.emit(event, payload).unwrap();
-}
-
 pub fn unzip(path: &str, destination: &str) -> Result<(), zip::result::ZipError> {
     let fname = std::path::Path::new(path);
     let zipfile = std::fs::File::open(&fname).unwrap();
     let mut archive = zip::ZipArchive::new(zipfile).unwrap();
 
     return archive.extract(destination);
+}
+
+/// Uninstall WBM and related files
+pub fn uninstall(_game_path: &str) -> Result<(), ()> {
+    // todo: implement
+
+    return Ok(());
 }

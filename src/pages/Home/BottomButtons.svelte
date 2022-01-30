@@ -1,15 +1,21 @@
 <script lang="ts">
+	import FaBook from "svelte-icons/fa/FaBook.svelte"
 	import FaGithub from "svelte-icons/fa/FaGithub.svelte"
 	import FaDiscord from "svelte-icons/fa/FaDiscord.svelte"
-	import FaBook from "svelte-icons/fa/FaBook.svelte"
 </script>
 
 <div class="small-button-container">
-	<a href="https://github.com/War-Brokers-Mods/WBM#usage" target="_blank"
-		><FaBook /></a
-	>
-	<a href="https://github.com/War-Brokers-Mods" target="_blank"><FaGithub /></a>
-	<a href="https://discord.gg/aQqamSCUcS" target="_blank"><FaDiscord /></a>
+	<a href="https://github.com/War-Brokers-Mods/WBM#usage" target="_blank">
+		<FaBook />
+	</a>
+
+	<a href="https://github.com/War-Brokers-Mods" target="_blank">
+		<FaGithub />
+	</a>
+
+	<a href="https://discord.gg/aQqamSCUcS" target="_blank">
+		<FaDiscord />
+	</a>
 </div>
 
 <style lang="scss">
