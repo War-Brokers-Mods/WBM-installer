@@ -62,7 +62,7 @@ pub async fn install(game_path: String) -> Result<(), InstallErr> {
     let game_path = game_path.as_str();
 
     //
-    //
+    // Remove existing files
     //
 
     match clean::clean(game_path).await {
