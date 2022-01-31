@@ -1,17 +1,17 @@
 <script lang="ts">
-	export let activated: boolean
+	export let active: boolean
 </script>
 
 <div class="spinner">
 	<img alt="WBM back" src="/img/WBM-back.png" />
 	<img
 		alt="WBM left gear"
-		class="rotateL {activated && 'activated'}"
+		class="rotateL {active && 'activated'}"
 		src="/img/WBM-Lgear.png"
 	/>
 	<img
 		alt="WBM right gear"
-		class="rotateR {activated && 'activated'}"
+		class="rotateR {active && 'activated'}"
 		src="/img/WBM-Rgear.png"
 	/>
 	<img alt="WBM ftont" src="/img/WBM-front.png" />
