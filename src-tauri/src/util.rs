@@ -5,7 +5,7 @@ use std::cmp::min;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// build client with header
 pub fn build_client() -> reqwest::Client {
@@ -155,16 +155,57 @@ pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<Str
 }
 
 pub fn unzip(path: &str, destination: &str) -> Result<(), zip::result::ZipError> {
-    let fname = std::path::Path::new(path);
-    let zipfile = std::fs::File::open(&fname).unwrap();
+    let fname = Path::new(path);
+    let zipfile = File::open(&fname).unwrap();
     let mut archive = zip::ZipArchive::new(zipfile).unwrap();
 
     return archive.extract(destination);
 }
 
-/// Uninstall WBM and related files
-pub fn uninstall(_game_path: &str) -> Result<(), ()> {
-    // todo: implement
+/// Partially uninstalls WBM and related files.
+///
+/// Be careful when running this function! Make sure that the `game_path` is a valid path!
+///
+/// This function only remove files related to WBM.
+/// Removing steam launch option (only applies to Linux and macOS) should be done manually.
+pub fn uninstall(game_path: &str) -> Result<(), ()> {
+    let game_path = game_path.to_string();
+
+    match std::env::consts::OS {
+        "linux" | "macos" => {
+            match std::fs::remove_dir_all(Path::new(&game_path).join("BepInEx")) {
+                _ => {}
+            };
+            match std::fs::remove_dir_all(Path::new(&game_path).join("doorstop_libs")) {
+                _ => {}
+            };
+            match std::fs::remove_file(Path::new(&game_path).join("changelog.txt")) {
+                _ => {}
+            };
+            match std::fs::remove_file(Path::new(&game_path).join("run_bepinex.sh")) {
+                _ => {}
+            };
+        }
+
+        "windows" => {
+            match std::fs::remove_dir_all(Path::new(&game_path).join("BepInEx")) {
+                _ => {}
+            };
+            match std::fs::remove_file(Path::new(&game_path).join("doorstop_config.ini")) {
+                _ => {}
+            };
+            match std::fs::remove_file(Path::new(&game_path).join("winhttp.dll")) {
+                _ => {}
+            };
+            match std::fs::remove_file(Path::new(&game_path).join("changelog.txt")) {
+                _ => {}
+            };
+        }
+
+        _ => {
+            return Err(());
+        }
+    }
 
     return Ok(());
 }
