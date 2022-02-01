@@ -44,7 +44,7 @@
 
 		<button
 			on:click|once={() => {
-				selectGamePathAndRun(install)
+				selectGamePathAndRun("install")
 				lastInstallErr = undefined
 			}}
 		>
@@ -88,7 +88,7 @@
 
 		<button
 			on:click|once={() => {
-				install()
+				install({ isLaunchOptionSet: true })
 				lastInstallErr = undefined
 			}}
 		>

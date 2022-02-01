@@ -11,22 +11,31 @@ function buttonClicked() {
 	store.spinCog.set(true)
 }
 
+interface InstallArgs {
+	gamePath?: string
+	isLaunchOptionSet?: boolean
+}
+
 /**
  * Calls the install command in the backend.
  *
- * @param {string} gamePath - Absolute path to the game directory in the steam library. Leave it empty to use default location.
+ * @param {InstallArgs} gamePath - Absolute path to the game directory in the steam library. Leave it empty to use default location.
  */
-export function install(gamePath: string = "") {
+export function install(args: InstallArgs = {}) {
 	buttonClicked()
 
-	if (!gamePath) {
+	// get stored gamePath if it's empty
+	if (!args.gamePath) {
 		store.gamePath.update((value) => {
-			gamePath = value
+			args.gamePath = value
 			return value
 		})
 	}
 
-	invoke(COMMANDS.INSTALL, { gamePath })
+	invoke(COMMANDS.INSTALL, {
+		gamePath: args.gamePath || "",
+		isLaunchOptionSet: args.isLaunchOptionSet || false,
+	})
 		.then(() => {
 			store.wasInstallSuccessful.set(true)
 		})
@@ -67,12 +76,20 @@ export function remove(gamePath: string = "") {
  * Opens a file selection dialog for the user to manually select the game directory.
  * Called when the default game location was not found.
  *
- * @param {(gamePath?: string) => void} f - Function that will run after selecting a directory. Expected to be either the {@link install} function or the {@link remove} function.
+ * @param {"install" | "remove"} type - Function that will run after selecting a directory. Expected to be either the {@link install} function or the {@link remove} function.
  */
-export function selectGamePathAndRun(f: (gamePath?: string) => void) {
+export function selectGamePathAndRun(type: "install" | "remove") {
 	dialogOpen({ directory: true, multiple: false }).then((value: string) => {
 		store.gamePath.set(value)
 
-		f(value)
+		switch (type) {
+			case "install": {
+				install({ gamePath: value })
+			}
+
+			case "remove": {
+				remove(value)
+			}
+		}
 	})
 }

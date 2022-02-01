@@ -9,8 +9,6 @@ mod launch_options;
 
 use types::InstallErr;
 
-// todo: show current step in the frontend
-
 /// automated version of the [manual installation](https://github.com/War-Brokers-Mods/WBM#installation).
 ///
 /// This function exits if it requires a user input and is called again with the user input as its arguments.
@@ -20,9 +18,14 @@ use types::InstallErr;
 ///
 /// ## Arguments
 ///
-/// * `game_path` - absolute path to the game folder/directory.
+/// * `game_path` - Absolute path to the game folder/directory.
+/// * `is_launch_option_set` - Whether if steam launch option is already set or not.
 #[tauri::command]
-pub async fn install(window: tauri::Window, game_path: String) -> Result<(), InstallErr> {
+pub async fn install(
+    window: tauri::Window,
+    game_path: String,
+    is_launch_option_set: bool,
+) -> Result<(), InstallErr> {
     println!("install command called");
 
     //
@@ -88,9 +91,11 @@ pub async fn install(window: tauri::Window, game_path: String) -> Result<(), Ins
     // Set steam launch option if OS is linux or macOS
     //
 
-    match launch_options::unix_launch_option_setup(&window, game_path).await {
-        Ok(_) => {}
-        Err(err) => return Err(err),
+    if !is_launch_option_set {
+        match launch_options::unix_launch_option_setup(&window, game_path).await {
+            Ok(_) => {}
+            Err(err) => return Err(err),
+        }
     }
 
     //
