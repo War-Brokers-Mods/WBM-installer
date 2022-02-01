@@ -4,9 +4,9 @@
 	import { install, selectGamePathAndRun } from "./logic"
 
 	import { listen } from "@tauri-apps/api/event"
+	import { writeText } from "@tauri-apps/api/clipboard"
 
 	import { getNotificationsContext } from "svelte-notifications"
-	import { copy } from "svelte-copy"
 
 	const { addNotification } = getNotificationsContext()
 
@@ -45,6 +45,7 @@
 		<button
 			on:click|once={() => {
 				selectGamePathAndRun(install)
+				lastInstallErr = undefined
 			}}
 		>
 			Select game path
@@ -63,17 +64,22 @@
 		Failed to unzip WBM :(
 	{:else if lastInstallErr == InstallErr.LaunchOptionNotSet}
 		<!-- todo: implement click to copy -->
-		Copy and paste the following text to steam launch option: "<code>
-			{launhOptionString}
-		</code>"
+		Copy and paste the following text to steam launch option: "
+		<code>{launhOptionString}</code>"
+
+		<br />
 
 		<button
-			use:copy={"Hello World"}
-			on:click={() =>
+			on:click|once={() => {
+				writeText(launhOptionString)
+
 				addNotification({
-					text: "Copy",
+					text: "Copied",
 					position: "bottom-center",
-				})}
+					type: "success",
+					removeAfter: 5000,
+				})
+			}}
 		>
 			Copy
 		</button>
@@ -81,8 +87,9 @@
 		<img alt="where to find property settings" src="/img/properties.png" />
 
 		<button
-			on:click={() => {
+			on:click|once={() => {
 				install()
+				lastInstallErr = undefined
 			}}
 		>
 			Done! Continue!
