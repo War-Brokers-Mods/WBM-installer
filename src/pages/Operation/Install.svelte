@@ -5,6 +5,11 @@
 
 	import { listen } from "@tauri-apps/api/event"
 
+	import { getNotificationsContext } from "svelte-notifications"
+	import { copy } from "svelte-copy"
+
+	const { addNotification } = getNotificationsContext()
+
 	let lastInstallErr: InstallErr = undefined
 	let wasInstallSuccessful: boolean = false
 	let launhOptionString: string = "loading..."
@@ -58,10 +63,20 @@
 		Failed to unzip WBM :(
 	{:else if lastInstallErr == InstallErr.LaunchOptionNotSet}
 		<!-- todo: implement click to copy -->
-		Copy and paste the following text to steam launch option (click to copy): "<code
-		>
+		Copy and paste the following text to steam launch option: "<code>
 			{launhOptionString}
 		</code>"
+
+		<button
+			use:copy={"Hello World"}
+			on:click={() =>
+				addNotification({
+					text: "Copy",
+					position: "bottom-center",
+				})}
+		>
+			Copy
+		</button>
 
 		<img alt="where to find property settings" src="/img/properties.png" />
 
