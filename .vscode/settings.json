@@ -1,12 +1,15 @@
 {
 	"cSpell.words": [
 		"bepinex",
+		"consts",
 		"developomp",
 		"localconfig",
 		"reqwest",
 		"steamapps",
 		"tailwindcss",
-		"tauri"
+		"tauri",
+		"winhttp",
+		"zipfile"
 	],
 
 	"emmet.includeLanguages": {
