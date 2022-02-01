@@ -52,9 +52,13 @@
 	{#if !wasButtonClicked}
 		<!-- Hide after clicking the button -->
 		{#if operationType == OperationType.Install}
-			<button on:click|once={() => install()}>Install/Update!</button>
+			<button on:click|once={() => install()}>Install / Update!</button>
+			<br />
+			Install the latest WBM.
 		{:else}
 			<button on:click|once={() => remove()}>Remove!</button>
+			<br />
+			Remove WBM from your computer.
 		{/if}
 	{:else}
 		<!-- Show only when the button is clicked -->

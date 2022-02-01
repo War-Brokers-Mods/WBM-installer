@@ -28,15 +28,6 @@ pub async fn install_wbm_mod(game_path: &str) -> Result<(), InstallErr> {
         Ok(zip_path) => {
             let wbm_path = std::path::Path::new(game_path).join("BepInEx/plugins/WBM");
 
-            println!("Removing existing files");
-            match std::fs::remove_dir_all(wbm_path.clone()) {
-                Ok(_) => {}
-                Err(_) => {
-                    println!("Failed to remove existing WBM mod files");
-                    return Err(InstallErr::WBMRemoveFailed);
-                }
-            };
-
             println!("Creating WBM directory");
             match std::fs::create_dir_all(wbm_path.clone()) {
                 Ok(_) => {}

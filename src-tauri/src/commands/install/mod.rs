@@ -53,10 +53,6 @@ pub async fn install(game_path: String) -> Result<(), InstallErr> {
 
         default_game_path
     } else {
-        if !util::is_game_path_valid(&game_path) {
-            return Err(InstallErr::GamePathNotValid);
-        }
-
         game_path
     };
     let game_path = game_path.as_str();

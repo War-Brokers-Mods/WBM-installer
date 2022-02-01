@@ -4,12 +4,10 @@
 pub enum InstallErr {
     UnsupportedOS,
     FailedToGetGamePath,
-    GamePathNotValid,
     RemoveOldFilesFailed,
     BepInExDownloadFailed,
     BepInExUnzipFailed,
     WBMDownloadFailed,
-    WBMRemoveFailed,
     WBMDirectoryCreationFailed,
     WBMUnzipFailed,
     LaunchOptionNotSet,

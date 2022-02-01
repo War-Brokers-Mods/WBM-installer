@@ -10,7 +10,7 @@
 		<div class="icon">
 			<FaDownload />
 		</div>
-		<div>Install</div>
+		<div>Install / Update</div>
 	</a>
 
 	<a href={ROUTES.REMOVE}>
@@ -26,7 +26,7 @@
 		@apply w-full flex justify-evenly;
 
 		a {
-			@apply p-4 w-24 h-24 text-center rounded-xl bg-red-500 text-white font-normal;
+			@apply p-3 w-24 h-24 text-center rounded-xl bg-red-500 text-white font-normal;
 
 			.icon {
 				@apply w-full h-6 mb-2;

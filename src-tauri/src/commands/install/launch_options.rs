@@ -19,6 +19,10 @@ pub async fn unix_launch_option_setup() -> Result<(), InstallErr> {
         }
     };
 
+    // todo: make run_bepinex.sh executable
+
+    // todo: send launch option string to frontend
+
     if is_already_set() {
         println!("Steam launch option is already set. Skipping.");
         return Ok(());
@@ -52,7 +56,7 @@ fn is_already_set() -> bool {
             // todo: improve logic
             // 1. find line only containing "750470"
             // 2. find next closest line only containing "}"
-            // 3. check if section contains "./run_bepinex.sh %command%"
+            // 3. check if section contains "run_bepinex.sh"
 
             // run_bepinex.sh
             // %command%
