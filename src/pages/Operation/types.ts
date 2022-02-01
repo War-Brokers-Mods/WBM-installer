@@ -11,6 +11,7 @@ export enum InstallErr {
 	WBMDirectoryCreationFailed,
 	WBMUnzipFailed,
 	LaunchOptionNotSet,
+	FailedToSendLaunchOption,
 }
 
 /**

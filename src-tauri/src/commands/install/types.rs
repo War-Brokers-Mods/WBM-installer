@@ -11,6 +11,7 @@ pub enum InstallErr {
     WBMDirectoryCreationFailed,
     WBMUnzipFailed,
     LaunchOptionNotSet,
+    FailedToSendLaunchOption,
 }
 
 impl serde::Serialize for InstallErr {

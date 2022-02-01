@@ -3,8 +3,11 @@
 	import { InstallErr } from "./types"
 	import { install, selectGamePathAndRun } from "./logic"
 
+	import { listen } from "@tauri-apps/api/event"
+
 	let lastInstallErr: InstallErr = undefined
 	let wasInstallSuccessful: boolean = false
+	let launhOptionString: string = "loading..."
 
 	store.lastInstallErr.subscribe((value) => {
 		lastInstallErr = value
@@ -13,10 +16,18 @@
 	store.wasInstallSuccessful.subscribe((value) => {
 		wasInstallSuccessful = value
 	})
+
+	listen<string>("launch-option-string", ({ payload }) => {
+		launhOptionString = payload
+	})
 </script>
 
 <div class="install">
-	{#if lastInstallErr == InstallErr.UnsupportedOS}
+	{#if wasInstallSuccessful}
+		Install Success!
+		<br />
+		You may now close the installer.
+	{:else if lastInstallErr == InstallErr.UnsupportedOS}
 		Operating System not supported.
 		<br />
 		WBM Installer is only available in Windows, Mac, and Linux.
@@ -46,8 +57,11 @@
 	{:else if lastInstallErr == InstallErr.WBMUnzipFailed}
 		Failed to unzip WBM :(
 	{:else if lastInstallErr == InstallErr.LaunchOptionNotSet}
-		<!-- todo: implement -->
-		Copy and paste the following text to ...
+		<!-- todo: implement click to copy -->
+		Copy and paste the following text to steam launch option (click to copy): "<code
+		>
+			{launhOptionString}
+		</code>"
 
 		<img alt="where to find property settings" src="/img/properties.png" />
 
@@ -58,6 +72,8 @@
 		>
 			Done! Continue!
 		</button>
+	{:else if lastInstallErr == InstallErr.FailedToSendLaunchOption}
+		Failed to receive steam launch option data :(
 	{/if}
 </div>
 <!-- Handle lastInstallErr change -->

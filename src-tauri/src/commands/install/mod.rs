@@ -22,7 +22,7 @@ use types::InstallErr;
 ///
 /// * `game_path` - absolute path to the game folder/directory.
 #[tauri::command]
-pub async fn install(game_path: String) -> Result<(), InstallErr> {
+pub async fn install(window: tauri::Window, game_path: String) -> Result<(), InstallErr> {
     println!("install command called");
 
     //
@@ -88,7 +88,7 @@ pub async fn install(game_path: String) -> Result<(), InstallErr> {
     // Set steam launch option if OS is linux or macOS
     //
 
-    match launch_options::unix_launch_option_setup().await {
+    match launch_options::unix_launch_option_setup(&window, game_path).await {
         Ok(_) => {}
         Err(err) => return Err(err),
     }
