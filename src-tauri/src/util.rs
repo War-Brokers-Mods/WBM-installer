@@ -1,13 +1,12 @@
 use tauri::api::path::{cache_dir, home_dir};
 
 use futures_util::StreamExt;
-use std::cmp::min;
-use std::fs;
-use std::fs::File;
 use std::io::Write;
-use std::path::{Path, PathBuf};
 
-/// build client with header
+use std::fs::{metadata, remove_dir_all, remove_file, File};
+use std::path::Path;
+
+/// build new reqwest client with custom header
 pub fn build_client() -> reqwest::Client {
     return reqwest::Client::builder()
         .user_agent("WBM-Installer")
@@ -15,9 +14,9 @@ pub fn build_client() -> reqwest::Client {
         .unwrap();
 }
 
-/// Gets platform-specific default steam path.
+/// Gets absolute path to the default steam directory.
 pub fn get_default_steam_path() -> Option<String> {
-    let home = buf2str(home_dir());
+    let home = home_dir();
     if home.is_none() {
         println!("Couldn't get home directory");
         return None;
@@ -25,8 +24,13 @@ pub fn get_default_steam_path() -> Option<String> {
     let home = home.unwrap();
 
     let steam_path = match std::env::consts::OS {
-        "linux" => format!("{}/.steam/steam", home),
-        "macos" => format!("{}/Library/Application Support/Steam", home),
+        "linux" => String::from(Path::new(&home).join(".steam/steam").to_str().unwrap()),
+        "macos" => String::from(
+            Path::new(&home)
+                .join("Library/Application Support/Steam")
+                .to_str()
+                .unwrap(),
+        ),
         "windows" => String::from("C:\\Program Files (x86)\\Steam"),
 
         _ => {
@@ -36,26 +40,36 @@ pub fn get_default_steam_path() -> Option<String> {
     };
 
     // check if path is valid
-    if fs::metadata(steam_path.as_str()).is_err() {
+    if metadata(steam_path.as_str()).is_err() {
         println!("Default steam path not found");
         return None;
     }
 
-    return Some(String::from(steam_path));
+    return Some(steam_path);
 }
 
-/// Gets platform-specific default game path.
+/// Gets absolute path to the default game directory.
 pub fn get_default_game_path() -> Option<String> {
     match get_default_steam_path() {
         Some(steam_path) => {
             let game_path = match std::env::consts::OS {
-                "linux" | "macos" => format!("{}/steamapps/common/WarBrokers", steam_path),
-                "windows" => String::from(format!("{}\\steamapps\\common\\WarBrokers", steam_path)),
+                "linux" | "macos" => String::from(
+                    Path::new(&steam_path)
+                        .join("steamapps/common/WarBrokers")
+                        .to_str()
+                        .unwrap(),
+                ),
+                "windows" => String::from(
+                    Path::new(&steam_path)
+                        .join("steamapps\\common\\WarBrokers")
+                        .to_str()
+                        .unwrap(),
+                ),
 
                 _ => return None,
             };
 
-            if fs::metadata(game_path.as_str()).is_err() {
+            if metadata(game_path.as_str()).is_err() {
                 println!("Default game path not found");
                 return None;
             }
@@ -68,23 +82,14 @@ pub fn get_default_game_path() -> Option<String> {
         }
 
         None => return None,
-    }
+    };
 }
 
 /// Checks if the path is a valid War Brokers game path
 pub fn is_game_path_valid(_game_path: &str) -> bool {
-    // todo: implement logic
+    // todo: implement
 
     return true;
-}
-
-/// convert `Option<PathBuf>` to `Option<String>`
-pub fn buf2str(input: Option<PathBuf>) -> Option<String> {
-    if input.is_none() {
-        return None;
-    }
-
-    return Some(String::from(input.unwrap().to_str().unwrap()));
 }
 
 /// get the latest WBM release version.
@@ -106,52 +111,73 @@ pub async fn get_wbm_release_data() -> String {
 }
 
 /// downloads a file from the url to the cache directory.
-pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<String, String> {
+pub async fn download_zip_to_cache_dir(url: &str, file_name: &str) -> Result<String, ()> {
     // parse path
 
-    let cache_dir_raw = buf2str(cache_dir());
-    if cache_dir_raw.is_none() {
-        // todo: handle error here
-        panic!("Failed to get cache directory.");
-    }
+    let cache_dir_path = cache_dir();
+    let cache_dir_path = if cache_dir_path.is_none() {
+        println!("Failed to get cache directory.");
+        return Err(());
+    } else {
+        String::from(cache_dir_path.unwrap().to_str().unwrap())
+    };
 
-    let path = format!("{}/{}", cache_dir_raw.unwrap(), file_name);
-    let path_str = path.as_str();
+    let cache_dir_path = Path::new(&cache_dir_path).join(file_name);
+    let cache_dir_path = cache_dir_path.to_str().unwrap();
 
     // initialize reqwest client
 
     let client = build_client();
 
-    let res = client
-        .get(url)
-        .send()
-        .await
-        .or(Err(format!("Failed to GET from '{}'", &url)))?;
+    let res = client.get(url).send().await;
+    let res = if res.is_err() {
+        println!("Failed to GET from '{}'", &url);
+        return Err(());
+    } else {
+        res.unwrap()
+    };
 
-    let total_size = res
-        .content_length()
-        .ok_or(format!("Failed to get content length from '{}'", &url))?;
+    let total_size = res.content_length();
+    let total_size = if total_size.is_none() {
+        println!("Failed to get content length from: '{}'", url);
+        return Err(());
+    } else {
+        total_size.unwrap()
+    };
 
     // download chunks
 
-    let mut file =
-        File::create(path_str).or(Err(format!("Failed to create file '{}'", path_str)))?;
+    let file = File::create(cache_dir_path);
+    let mut file = if file.is_err() {
+        println!("Failed to create file '{}'", cache_dir_path);
+        return Err(());
+    } else {
+        file.unwrap()
+    };
+
     let mut stream = res.bytes_stream();
 
     let mut downloaded: u64 = 0;
 
     while let Some(item) = stream.next().await {
-        let chunk = item.or(Err(format!("Error while downloading file")))?;
+        let chunk = if item.is_err() {
+            println!("Error while downloading file");
+            return Err(());
+        } else {
+            item.unwrap()
+        };
 
-        file.write(&chunk)
-            .or(Err(format!("Error while writing to file")))?;
+        if file.write(&chunk).is_err() {
+            println!("Error while writing to file");
+            return Err(());
+        }
 
-        let new = min(downloaded + (chunk.len() as u64), total_size);
+        let new = std::cmp::min(downloaded + (chunk.len() as u64), total_size);
 
         downloaded = new;
     }
 
-    return Ok(path);
+    return Ok(String::from(cache_dir_path));
 }
 
 pub fn unzip(path: &str, destination: &str) -> Result<(), zip::result::ZipError> {
@@ -173,31 +199,31 @@ pub fn uninstall(game_path: &str) -> Result<(), ()> {
 
     match std::env::consts::OS {
         "linux" | "macos" => {
-            match std::fs::remove_dir_all(Path::new(&game_path).join("BepInEx")) {
+            match remove_dir_all(Path::new(&game_path).join("BepInEx")) {
                 _ => {}
             };
-            match std::fs::remove_dir_all(Path::new(&game_path).join("doorstop_libs")) {
+            match remove_dir_all(Path::new(&game_path).join("doorstop_libs")) {
                 _ => {}
             };
-            match std::fs::remove_file(Path::new(&game_path).join("changelog.txt")) {
+            match remove_file(Path::new(&game_path).join("changelog.txt")) {
                 _ => {}
             };
-            match std::fs::remove_file(Path::new(&game_path).join("run_bepinex.sh")) {
+            match remove_file(Path::new(&game_path).join("run_bepinex.sh")) {
                 _ => {}
             };
         }
 
         "windows" => {
-            match std::fs::remove_dir_all(Path::new(&game_path).join("BepInEx")) {
+            match remove_dir_all(Path::new(&game_path).join("BepInEx")) {
                 _ => {}
             };
-            match std::fs::remove_file(Path::new(&game_path).join("doorstop_config.ini")) {
+            match remove_file(Path::new(&game_path).join("doorstop_config.ini")) {
                 _ => {}
             };
-            match std::fs::remove_file(Path::new(&game_path).join("winhttp.dll")) {
+            match remove_file(Path::new(&game_path).join("winhttp.dll")) {
                 _ => {}
             };
-            match std::fs::remove_file(Path::new(&game_path).join("changelog.txt")) {
+            match remove_file(Path::new(&game_path).join("changelog.txt")) {
                 _ => {}
             };
         }
