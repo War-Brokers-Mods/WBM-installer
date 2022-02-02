@@ -4,7 +4,7 @@ use futures_util::StreamExt;
 use std::io::Write;
 
 use std::fs::{metadata, remove_dir_all, remove_file, File};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// build new reqwest client with custom header
 pub fn build_client() -> reqwest::Client {
@@ -53,23 +53,13 @@ pub fn get_default_game_path() -> Option<String> {
     match get_default_steam_path() {
         Some(steam_path) => {
             let game_path = match std::env::consts::OS {
-                "linux" | "macos" => String::from(
-                    Path::new(&steam_path)
-                        .join("steamapps/common/WarBrokers")
-                        .to_str()
-                        .unwrap(),
-                ),
-                "windows" => String::from(
-                    Path::new(&steam_path)
-                        .join("steamapps\\common\\WarBrokers")
-                        .to_str()
-                        .unwrap(),
-                ),
+                "linux" | "macos" => Path::new(&steam_path).join("steamapps/common/WarBrokers"),
+                "windows" => Path::new(&steam_path).join("steamapps\\common\\WarBrokers"),
 
                 _ => return None,
             };
 
-            if metadata(game_path.as_str()).is_err() {
+            if metadata(&game_path).is_err() {
                 println!("Default game path not found");
                 return None;
             }
@@ -78,7 +68,7 @@ pub fn get_default_game_path() -> Option<String> {
                 return None;
             }
 
-            return Some(String::from(game_path));
+            return Some(String::from(game_path.to_str().unwrap()));
         }
 
         None => return None,
@@ -86,10 +76,9 @@ pub fn get_default_game_path() -> Option<String> {
 }
 
 /// Checks if the path is a valid War Brokers game path
-pub fn is_game_path_valid(_game_path: &str) -> bool {
-    // todo: implement
-
-    return true;
+pub fn is_game_path_valid(game_path: &PathBuf) -> bool {
+    // simply check if level1a exists lol
+    return Path::new(game_path).join("level1a").exists();
 }
 
 /// get the latest WBM release version.
