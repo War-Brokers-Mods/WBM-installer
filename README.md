@@ -1,16 +1,16 @@
 # WBM-installer
 
-Installer for War Brokers Mods (WBM).
-
 <p align="center">
+  <b><a alt="download link" href="https://github.com/War-Brokers-Mods/WBM-installer/releases">Download</a></b>
+  <br />
+  <br />
   <img alt="Installer image" src="./.repo/image.png" />
 </p>
 
-## Installing
-
-instructions
-
 ## Contributing
+
+<details>
+  <summary>Click to unfold</summary>
 
 **⚠️ High CPU usage warning ⚠️**
 
@@ -54,6 +54,8 @@ Build the application for release.
 ```bash
 yarn tauri build
 ```
+
+</details>
 
 ## License
 
