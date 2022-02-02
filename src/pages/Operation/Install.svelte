@@ -1,7 +1,7 @@
 <script lang="ts">
 	import store from "./store"
 	import { InstallErr } from "./types"
-	import { install, selectGamePathAndRun } from "./logic"
+	import { selectGamePathAndRun } from "./logic"
 
 	import { listen } from "@tauri-apps/api/event"
 	import { writeText } from "@tauri-apps/api/clipboard"
