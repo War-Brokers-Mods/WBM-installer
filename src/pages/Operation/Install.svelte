@@ -42,7 +42,7 @@
 		<br />
 		WBM Installer is only available in Windows, Mac, and Linux.
 	{:else if lastInstallErr == InstallErr.FailedToGetGamePath}
-		Failed to find game folder.
+		Where is the game folder?
 
 		<br />
 		<br />
@@ -68,8 +68,9 @@
 	{:else if lastInstallErr == InstallErr.WBMUnzipFailed}
 		Failed to unzip WBM :(
 	{:else if lastInstallErr == InstallErr.LaunchOptionNotSet}
-		Paste the following text to steam launch option (click to copy):<br />
+		Paste this to the steam launch options <b>(click to copy)</b>:<br />
 		<code
+			style="cursor: pointer"
 			on:click|once={() => {
 				writeText(launhOptionString)
 
