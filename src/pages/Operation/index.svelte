@@ -62,7 +62,7 @@
 		{#if operationType == OperationType.Install}
 			<button on:click|once={() => install()}>Install / Update!</button>
 			<br />
-			Install the latest WBM.
+			Install the latest War Brokers Mods.
 		{:else}
 			<button on:click|once={() => remove()}>Remove!</button>
 			<br />
