@@ -41,11 +41,11 @@
 	})
 
 	store.wasInstallSuccessful.subscribe((value) => {
-		spinCog = !value
+		if (value) spinCog = false
 	})
 
 	store.wasRemoveSuccessful.subscribe((value) => {
-		spinCog = !value
+		if (value) spinCog = false
 	})
 </script>
 
