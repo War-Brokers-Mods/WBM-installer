@@ -11,31 +11,23 @@ function buttonClicked() {
 	store.spinCog.set(true)
 }
 
-interface InstallArgs {
-	gamePath?: string
-	isLaunchOptionSet?: boolean
-}
-
 /**
  * Calls the install command in the backend.
  *
- * @param {InstallArgs} gamePath - Absolute path to the game directory in the steam library. Leave it empty to use default location.
+ * @param {string} gamePath - Absolute path to the game directory in the steam library. Leave it empty to use default location.
  */
-export function install(args: InstallArgs = {}) {
+export function install(gamePath: string = "") {
 	buttonClicked()
 
 	// get stored gamePath if it's empty
-	if (!args.gamePath) {
+	if (!gamePath) {
 		store.gamePath.update((value) => {
-			args.gamePath = value
+			gamePath = value
 			return value
 		})
 	}
 
-	invoke(COMMANDS.INSTALL, {
-		gamePath: args.gamePath || "",
-		isLaunchOptionSet: args.isLaunchOptionSet || false,
-	})
+	invoke(COMMANDS.INSTALL, { gamePath })
 		.then(() => {
 			store.wasInstallSuccessful.set(true)
 		})
@@ -80,7 +72,7 @@ export function selectGamePathAndRun(type: "install" | "remove") {
 
 		switch (type) {
 			case "install": {
-				install({ gamePath: value })
+				install(value)
 			}
 
 			case "remove": {

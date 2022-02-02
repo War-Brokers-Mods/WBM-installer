@@ -90,11 +90,11 @@
 
 		<button
 			on:click|once={() => {
-				install({ isLaunchOptionSet: true })
-				lastInstallErr = undefined
+				store.lastInstallErr.set(undefined)
+				store.wasInstallSuccessful.set(true)
 			}}
 		>
-			Done! Continue!
+			Done!
 		</button>
 	{:else if lastInstallErr == InstallErr.FailedToSendLaunchOption}
 		Failed to receive steam launch option data :(
