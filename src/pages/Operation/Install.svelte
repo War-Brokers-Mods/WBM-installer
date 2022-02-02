@@ -1,4 +1,9 @@
 <script lang="ts">
+	/**
+	 * This component is shown during installation.
+	 * It asks for user input when needed and shows error when something's gone wrong.
+	 */
+
 	import store from "./store"
 	import { InstallErr } from "./types"
 	import { selectGamePathAndRun } from "./logic"
@@ -100,9 +105,7 @@
 		Failed to receive steam launch option data :(
 	{/if}
 </div>
-<!-- Handle lastInstallErr change -->
 
-<!-- On install complete -->
 <style lang="scss">
 	@import "./styles/button.scss";
 
