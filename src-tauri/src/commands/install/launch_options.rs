@@ -32,6 +32,7 @@ pub async fn unix_launch_option_setup(
 
     let run_bepinex_sh_path = Path::new(game_path).join("run_bepinex.sh");
     let run_bepinex_sh_path_str = run_bepinex_sh_path.to_str().unwrap();
+
     let perms = fs::metadata(&run_bepinex_sh_path);
     if perms.is_err() {
         println!("Failed to make {} executable", run_bepinex_sh_path_str);
@@ -39,9 +40,12 @@ pub async fn unix_launch_option_setup(
     }
     let mut perms = perms.unwrap().permissions();
     perms.set_mode(0o755); // rwxr-xr-x
-    match fs::set_permissions("path", perms) {
-        Err(_) => {
-            println!("Failed to make {} executable", run_bepinex_sh_path_str);
+    match fs::set_permissions(run_bepinex_sh_path_str, perms) {
+        Err(err) => {
+            println!(
+                "Failed to make {} executable: {}",
+                run_bepinex_sh_path_str, err
+            );
         }
 
         _ => {}

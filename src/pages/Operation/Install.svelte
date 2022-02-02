@@ -63,13 +63,8 @@
 	{:else if lastInstallErr == InstallErr.WBMUnzipFailed}
 		Failed to unzip WBM :(
 	{:else if lastInstallErr == InstallErr.LaunchOptionNotSet}
-		<!-- todo: implement click to copy -->
-		Copy and paste the following text to steam launch option: "
-		<code>{launhOptionString}</code>"
-
-		<br />
-
-		<button
+		Paste the following text to steam launch option (click to copy):<br />
+		<code
 			on:click|once={() => {
 				writeText(launhOptionString)
 
@@ -79,12 +74,19 @@
 					type: "success",
 					removeAfter: 5000,
 				})
-			}}
+			}}>{launhOptionString}</code
 		>
-			Copy
-		</button>
+
+		<br />
+		<br />
 
 		<img alt="where to find property settings" src="/img/properties.png" />
+
+		<br />
+
+		<img alt="where to find launch option" src="/img/launch_option.png" />
+
+		<br />
 
 		<button
 			on:click|once={() => {
@@ -105,6 +107,20 @@
 	@import "./styles/button.scss";
 
 	.install {
-		@apply text-center;
+		/* make install section scrollable */
+		@apply w-full h-40 text-center overflow-y-auto overflow-x-hidden;
+
+		code {
+			color: rgb(238, 238, 238);
+			background-color: rgb(68, 68, 68);
+			border: 1px solid rgb(102, 102, 102);
+			border-radius: 3px;
+			padding: 1px 3px;
+		}
+
+		img {
+			/* center image */
+			@apply block ml-auto mr-auto;
+		}
 	}
 </style>
