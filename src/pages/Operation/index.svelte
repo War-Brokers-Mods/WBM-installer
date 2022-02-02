@@ -39,6 +39,14 @@
 	store.spinCog.subscribe((value) => {
 		spinCog = value
 	})
+
+	store.wasInstallSuccessful.subscribe((value) => {
+		spinCog = !value
+	})
+
+	store.wasRemoveSuccessful.subscribe((value) => {
+		spinCog = !value
+	})
 </script>
 
 <!-- Allow user to go back to home until they click the install button -->
