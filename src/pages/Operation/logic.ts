@@ -40,8 +40,6 @@ export function install(args: InstallArgs = {}) {
 			store.wasInstallSuccessful.set(true)
 		})
 		.catch((err: InstallErr) => {
-			console.error(err)
-
 			store.lastInstallErr.set(err)
 		})
 }
@@ -66,8 +64,6 @@ export function remove(gamePath: string = "") {
 			store.wasRemoveSuccessful.set(true)
 		})
 		.catch((err: RemoveErr) => {
-			console.error(err)
-
 			store.lastRemoveErr.set(err)
 		})
 }
