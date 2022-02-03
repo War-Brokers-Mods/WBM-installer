@@ -9,6 +9,7 @@
 	import { selectGamePathAndRun } from "./logic"
 
 	import { listen } from "@tauri-apps/api/event"
+	import { open as shellOpen } from "@tauri-apps/api/shell"
 	import { writeText } from "@tauri-apps/api/clipboard"
 
 	import { getNotificationsContext } from "svelte-notifications"
@@ -37,6 +38,17 @@
 		Install Success!
 		<br />
 		You may now close the installer.
+		<br />
+		<br />
+		<!-- svelte-ignore a11y-invalid-attribute -->
+		<a
+			href="javascript:;"
+			on:click={() => {
+				shellOpen("https://github.com/War-Brokers-Mods/WBM#usage")
+			}}
+		>
+			Learn how to use the mod
+		</a>
 	{:else if lastInstallErr == InstallErr.UnsupportedOS}
 		Operating System not supported.
 		<br />
@@ -108,6 +120,7 @@
 </div>
 
 <style lang="scss">
+	@import "./styles/anchor.scss";
 	@import "./styles/button.scss";
 
 	.install {
