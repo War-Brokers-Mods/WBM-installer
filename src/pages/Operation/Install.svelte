@@ -112,7 +112,7 @@
 				store.wasInstallSuccessful.set(true)
 			}}
 		>
-			Done!
+			Continue!
 		</button>
 	{:else if lastInstallErr == InstallErr.FailedToSendLaunchOption}
 		Failed to receive steam launch option data :(
