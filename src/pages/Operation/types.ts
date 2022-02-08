@@ -20,6 +20,7 @@ export enum InstallErr {
 export enum RemoveErr {
 	FailedToGetGamePath,
 	FailedToRemoveFiles,
+	LaunchOptionNotRemoved,
 }
 
 export enum OperationType {

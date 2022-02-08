@@ -27,7 +27,7 @@
 		WBM Removed!
 		<br />
 		You may now close the installer.
-	{:else if false}
+	{:else if lastRemoveErr == RemoveErr.LaunchOptionNotRemoved}
 		Reset steam launch options.
 
 		<br />

@@ -40,5 +40,5 @@ pub async fn remove(game_path: String) -> Result<(), RemoveErr> {
         }
     }
 
-    return Ok(());
+    return Err(RemoveErr::LaunchOptionNotRemoved);
 }

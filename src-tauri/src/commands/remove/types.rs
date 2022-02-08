@@ -4,6 +4,7 @@
 pub enum RemoveErr {
     FailedToGetGamePath,
     FailedToRemoveFiles,
+    LaunchOptionNotRemoved,
 }
 
 impl serde::Serialize for RemoveErr {
