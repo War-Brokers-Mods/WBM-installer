@@ -18,8 +18,6 @@
 	store.wasRemoveSuccessful.subscribe((value) => {
 		wasRemoveSuccessful = value
 	})
-
-	// todo: Reset steam launch option.
 </script>
 
 <div class="remove">
