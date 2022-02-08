@@ -5,7 +5,6 @@ mod types;
 mod clean;
 mod install_bepinex;
 mod install_mod;
-#[cfg(not(target_os = "windows"))]
 mod launch_options;
 
 use types::InstallErr;

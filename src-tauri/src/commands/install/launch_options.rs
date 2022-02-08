@@ -2,9 +2,11 @@ use super::InstallErr;
 
 use std::fs;
 
+#[cfg(not(target_os = "windows"))]
 use std::os::unix::prelude::PermissionsExt;
 use std::path::Path;
 
+#[cfg(not(target_os = "windows"))]
 pub async fn unix_launch_option_setup(
     window: &tauri::Window,
     game_path: &str,
