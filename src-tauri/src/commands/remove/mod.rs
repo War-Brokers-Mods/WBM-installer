@@ -40,5 +40,12 @@ pub async fn remove(game_path: String) -> Result<(), RemoveErr> {
         }
     }
 
-    return Err(RemoveErr::LaunchOptionNotRemoved);
+    match std::env::consts::OS {
+        "macos" | "linux" => {
+            return Err(RemoveErr::LaunchOptionNotRemoved);
+        }
+        _ => {
+            return Ok(());
+        }
+    }
 }
