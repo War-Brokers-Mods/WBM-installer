@@ -1,6 +1,7 @@
 use super::InstallErr;
 
 use std::fs;
+
 use std::os::unix::prelude::PermissionsExt;
 use std::path::Path;
 
@@ -8,23 +9,8 @@ pub async fn unix_launch_option_setup(
     window: &tauri::Window,
     game_path: &str,
 ) -> Result<(), InstallErr> {
-    //
-    // skip if the OS is not linux or macOS
-    //
-
-    match std::env::consts::OS {
-        "linux" | "macos" => {
-            println!();
-            println!("Setting up steam launch option");
-        }
-
-        _ => {
-            println!();
-            println!("Skipping unix launch option setup");
-
-            return Ok(());
-        }
-    };
+    println!();
+    println!("Setting up steam launch option");
 
     //
     // make run_bepinex.sh executable

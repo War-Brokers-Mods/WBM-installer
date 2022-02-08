@@ -5,6 +5,7 @@ mod types;
 mod clean;
 mod install_bepinex;
 mod install_mod;
+#[cfg(not(target_os = "windows"))]
 mod launch_options;
 
 use types::InstallErr;
@@ -83,12 +84,14 @@ pub async fn install(window: tauri::Window, game_path: String) -> Result<(), Ins
     }
 
     //
-    // Set steam launch option if OS is linux or macOS
+    // Set steam launch option if OS is not windows
     //
 
-    match launch_options::unix_launch_option_setup(&window, game_path).await {
-        Ok(_) => {}
-        Err(err) => return Err(err),
+    if cfg!(not(target_os = "windows")) {
+        match launch_options::unix_launch_option_setup(&window, game_path).await {
+            Ok(_) => {}
+            Err(err) => return Err(err),
+        }
     }
 
     //
