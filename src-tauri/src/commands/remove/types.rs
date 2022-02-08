@@ -2,7 +2,6 @@
 
 #[derive(Clone, Copy)]
 pub enum RemoveErr {
-    UnsupportedOS,
     FailedToGetGamePath,
     FailedToRemoveFiles,
 }

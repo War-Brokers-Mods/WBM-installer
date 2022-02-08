@@ -18,7 +18,6 @@ export enum InstallErr {
  * Must be synced with `src-tauri/src/commands/remove/types.rs`
  */
 export enum RemoveErr {
-	UnsupportedOS,
 	FailedToGetGamePath,
 	FailedToRemoveFiles,
 }
