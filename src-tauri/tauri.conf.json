@@ -12,7 +12,7 @@
 	"tauri": {
 		"bundle": {
 			"active": true,
-			"targets": ["exe", "appimage", "app"],
+			"targets": ["msi", "appimage", "app"],
 			"identifier": "com.developomp.wbm.installer",
 			"icon": [
 				"icons/32x32.png",
