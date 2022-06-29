@@ -1,5 +1,10 @@
 # WBM-installer
 
+WBM has been officially included into the game
+
+<details>
+<summary>Potentially outdated information (click to unfold)</summary>
+
 <p align="center">
   <b><a alt="download link" href="https://github.com/War-Brokers-Mods/WBM-installer/releases">Download</a></b>
   <br />
@@ -60,3 +65,5 @@ yarn tauri build
 ## License
 
 The source code for this project is available under the [MIT license](./LICENSE).
+
+</details>
